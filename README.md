@@ -116,3 +116,7 @@ Saying so plainly seems better than letting you work it out from the em-dashes.
 welcome.** A PR or an issue is plenty; no need to ask first. The parts most worth a human pass
 are the thesis framing above and the claim map in `docs/LITERATURE.md`, where the judgement
 calls are load-bearing and deserve someone willing to argue with them.
+
+## License
+
+[MIT](LICENSE). Contributions are accepted under the same terms.
