@@ -1,0 +1,30 @@
+# papers and large artifacts
+research/papers/
+*.pdf
+
+# run outputs
+experiments/runs/
+out/
+*.jsonl
+!experiments/**/config.jsonl
+
+# models and data
+models/
+data/
+*.safetensors
+*.bin
+
+# python
+__pycache__/
+*.py[cod]
+.venv*/
+venv/
+.ipynb_checkpoints/
+
+# env / secrets
+.env
+*.key
+
+# os
+Thumbs.db
+.DS_Store
