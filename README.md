@@ -39,25 +39,43 @@ Four falsifiable claims. Each stands alone as a publishable finding, including n
 
 Full protocols, kill conditions and prior art in [docs/PROGRAM.md](docs/PROGRAM.md).
 
-## Testbed
+## Testbeds
 
-**ARC-AGI-3.** The only mainstream benchmark whose properties match what C1–C2 need: no
-natural-language instructions, uncontaminated private games, and a scoring metric that is
-skill-acquisition *efficiency* (levels completed, total actions as tiebreaker) — exactly the
-quantity C2 predicts moves first.
+Two benchmarks, each doing the job it is actually suited for.
 
-Load-bearing constraint: **no internet during Kaggle evaluation.** API models cannot be relied
-on. The competition track is a local-model regime, which makes C1's effect larger and puts it
-in direct tension with STOP's negative result. Resolving that tension cleanly is a paper.
+**C1 / C2 — [BoxingGym](https://arxiv.org/abs/2501.01540)** (NeurIPS 2025). Ten environments for
+automated experimental design and model discovery. The agent proposes a model of a hidden
+system, designs experiments, observes outcomes, and revises.
 
-Existing assets: ARC-AGI-3 harness in `../Arc-Prize`, ARC-AGI-2 campaign in `../arc-agi-2`.
+Why it fits, point by point against what C2 needs:
+
+| Requirement | How BoxingGym satisfies it |
+|---|---|
+| Required knowledge genuinely absent from weights | the hidden system's parameters are sampled per instance — absent by construction, not by argument |
+| Contamination-free | re-randomise the instance; no appeal to "these games are novel" needed |
+| Write–use–validate fits inside one run | native to the environment — propose, experiment, compare, revise *is* the task loop |
+| Efficiency metric that moves before success | data-efficiency, i.e. experiments-to-convergence, which is exactly C2's predicted early signal |
+| A published bar to clear | GPT-4o struggles (original paper); [Model Discovery Agent](https://arxiv.org/abs/2608.09696) (2608.09696) is Aug 2026 SOTA |
+
+One free property worth noting: BoxingGym's discovery metric asks whether *another* agent can
+predict correctly from your agent's explanation. That is C3's transfer question already built
+into the benchmark.
+
+**C3 / C4 — [EvoAgentBench](https://arxiv.org/pdf/2607.05202)** (2607.05202). The transfer and
+curation claims need task volume, multiple backbones, and a published comparison table — all
+three are what this benchmark exists to provide. Report on their axis and compare directly
+against their per-cell numbers, including the Anchor Skill gap C4 is trying to close.
+
+Rejected: ARC-AGI-3 (competition-shaped, offline-model constraint, and the contamination
+argument is weaker than "we resampled the instance"); Agent Island (adversarial and
+winner-take-all, so the fixed ceiling C1 needs does not exist).
 
 ## Why this angle
 
 Everything in the RSI literature is measured on SWE-bench, Polyglot, AppWorld, GAIA,
 WebWalkerQA, LiveCodeBench — static distributions, contamination risk, large engineering slack.
-**No scaffold-RSI paper uses an interactive-novelty environment.** That is the defensible
-position here: the idea is contestable, the testbed is not.
+**No scaffold-RSI paper works in a setting where the required knowledge is provably absent from
+the model.** That is the opening: the mechanism is contestable, the measurement is not.
 
 ## Layout
 
@@ -73,17 +91,26 @@ experiments/  run configs and results
 | | |
 |---|---|
 | Phase | literature complete, program drafted, nothing built |
-| Blocking | per-game action budget unverified (gates C2); workspace/compute plan undecided |
-| Next | verify action budget permits a write–use–validate cycle inside one run |
-
-## Calendar
-
-- **2026-09-30** — ARC-AGI-3 Milestone #2. $25K / $10K / $2.5K. Open-sourcing required for
-  eligibility. Overlaps the ARC-AGI-2 entry window (10-26 entry, 11-02 final). Scheduling
-  decision, not a free addition.
+| Blocking | Q1 — can a strong model prior substitute for experimentation on BoxingGym? (gates C2) · Q2 — are per-entry effect sizes actually model-conditional? (gates C3) |
+| Next | Q1 and Q2. Both cheap, both can kill a claim, neither needs code written first. |
 
 ## Reading
 
 Start with [docs/LITERATURE.md](docs/LITERATURE.md). Ten papers in argument order at the bottom.
 
 Field map as a rendered page: https://claude.ai/code/artifact/c8faf4bb-507f-487f-a163-048c26310e3a
+
+---
+
+## A note on this README
+
+This README — and the files under `docs/` — were drafted by an AI assistant (Claude), and will
+stay that way until a human wants to rewrite them. The research direction, the constraints, and
+the calls about what to pursue are the maintainer's. The prose and the literature sweep are not.
+
+Saying so plainly seems better than letting you work it out from the em-dashes.
+
+**If you'd like to rewrite any of it in your own voice, please do — that would be genuinely
+welcome.** A PR or an issue is plenty; no need to ask first. The parts most worth a human pass
+are the thesis framing above and the claim map in `docs/LITERATURE.md`, where the judgement
+calls are load-bearing and deserve someone willing to argue with them.

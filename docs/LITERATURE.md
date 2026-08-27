@@ -139,33 +139,62 @@ expand — reaches human-level coding-agent performance at far fewer CPU-hours t
 3. **Entry retirement.** AttriMem explicitly does not address it. PAM does not mention it.
    Accumulation is universal; principled forgetting has one governance-primitive paper
    (2604.12007) and no integration with any RSI loop.
-4. **Interactive-novelty environments.** Everything above is measured on SWE-bench, Polyglot,
-   AppWorld, GAIA, WebWalkerQA, LiveCodeBench. No scaffold-RSI paper uses an environment where
-   the required knowledge is genuinely absent from the model. → C1/C2, and the reason the
-   ceiling question is still open.
+4. **Environments where the knowledge is provably absent.** Everything above is measured on
+   SWE-bench, Polyglot, AppWorld, GAIA, WebWalkerQA, LiveCodeBench — all of which the base model
+   could in principle solve given a good enough prompt. No scaffold-RSI paper works in a setting
+   where the required knowledge is absent from the weights *by construction*, so no result can
+   distinguish slack recovery from capability creation. → C1/C2, and the reason the ceiling
+   question is still open.
 
 ---
 
-## 5. Testbed — ARC-AGI-3
+## 5. Testbeds
 
-Six video-game-like environments; three public (`ft09`, `ls20`, `vc33`), three private (`sp80`,
-`lp85`, `as66`). Released April 2026. No natural-language instructions — the agent cannot be
-told the goal. Scored on levels completed with total actions as tiebreaker, i.e. a
-**skill-acquisition efficiency** metric. ARC deliberately ships a generic harness for its own
-model comparisons, on the reasoning that a thin harness makes model shortcomings visible —
-which leaves the harness-design axis to entrants.
+Two benchmarks, split by which claim they serve. The requirements are different enough that one
+benchmark would do both jobs badly.
 
-Public (hosted-API) leaderboard: Claude Opus 5 **30.2%**, GPT-5.6 Sol **7.8%**, Claude Opus 4.8
-**1.5%**. Note this is *not* the regime the competition runs in.
+### 5.1 C1 / C2 — BoxingGym (2501.01540, NeurIPS 2025)
 
-**Kaggle track constraints.** No internet during evaluation; API-based systems cannot be relied
-on. Local models only. Milestone #2 is **2026-09-30**, $25K / $10K / $2.5K, open-sourcing
-required for eligibility.
+Ten environments for **automated experimental design and model discovery**. The agent proposes a
+model of a hidden system, designs experiments to test it, observes outcomes, and revises.
+Evaluation is two-part: standard prediction error, plus an explanation-based metric that asks
+whether *another* agent can predict reliably given the first agent's stated model.
 
-**Prior art in the environment.** Graph-Based Exploration (2512.24156); Lemon Agent (2602.07092).
-A top milestone submission uses vision-LLM-as-policy — recent frames rendered as labeled images,
-with a running reflection refreshed every ~10 steps. That reflection window is a hand-set
-constant doing exactly the job C4 says should be learned. *(inference)*
+Why this is the right shape for the ceiling claim:
+
+| C2 requires | BoxingGym provides |
+|---|---|
+| knowledge provably absent from weights | hidden-system parameters sampled per instance — absent by construction |
+| contamination-free | resample the instance; no argument from novelty required |
+| write–use–validate inside one run | propose → experiment → compare → revise *is* the task loop |
+| efficiency signal before success signal | data-efficiency (experiments to convergence) |
+| a published bar | GPT-4o struggles on both axes; Model Discovery Agent (2608.09696, Aug 2026) is current SOTA |
+
+Two findings from the original paper that matter here. First, GPT-4o struggles with *both*
+experimental design and model discovery — so there is real headroom, not a saturated benchmark.
+Second, **augmenting the agent with an explicit statistical model does not reliably help** —
+which is a direct precedent for C1's shape: adding machinery to the scaffold did not convert
+into capability.
+
+The explanation-based metric is a happy accident. It already measures whether a learned artifact
+survives handoff to a different agent, which is the question C3 asks. *(inference)*
+
+### 5.2 C3 / C4 — EvoAgentBench (2607.05202)
+
+The transfer and curation claims need task volume, multiple backbones, and a published table to
+compare against. EvoAgentBench is purpose-built for all three: 528 train / 267 test tasks across
+four domains, construction backbones held disjoint from evaluation backbones, and per-cell
+transfer gains already published for Memento, GEPA, ReasoningBank and the hand-curated Anchor
+Skill reference (§3.2 above). C4's target — the Anchor Skill gap — is a number in their table.
+
+### 5.3 Rejected, with reasons
+
+| Candidate | Why not |
+|---|---|
+| **ARC-AGI-3** | Competition-shaped rather than experiment-shaped; the Kaggle track forbids internet at eval, forcing a local-model regime that constrains the design for reasons unrelated to the science. Contamination argument ("the private games are novel") is weaker than "we resampled the instance." |
+| **Agent Island** (2605.04312) | Contamination- and saturation-resistant by construction, but adversarial and winner-take-all — the ceiling C1 measures against is not a fixed object when opponents adapt. |
+| **SWE-bench / GAIA / AppWorld** | The default choices in this literature, and precisely the ones whose slack makes C1 unanswerable. |
+| **NetHack / TextWorld** | Semantics are heavily represented in pretraining corpora; "knowledge absent from weights" fails. |
 
 ---
 

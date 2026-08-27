@@ -5,18 +5,29 @@ nothing. Answer both before writing code.
 
 ---
 
-## Q1 — Does the per-game action budget permit a write–use–validate cycle inside one run?
+## Q1 — Can a strong parametric prior substitute for experimentation on BoxingGym?
 
 **Gates** C2, which is the positive result of the whole program.
 
-C2 requires the agent to write a hypothesis about game mechanics, act on it, observe the
-transition, and revise — all within a single run's action budget. If the budget is tight enough
-that this cycle costs a meaningful fraction of the run, intra-episodic adaptation cannot express
-itself and the claim has no room.
+C2 rests on the required knowledge being absent from the weights *by construction*. BoxingGym
+samples the hidden system's parameters per instance, which makes the parameters absent — but the
+model *families* are recognisable (psychophysics, discounting, population dynamics and so on),
+and a model with a strong prior over those families might reach a good posterior without doing
+much real experimentation. If so, the knowledge was not as absent as claimed, C1's ceiling
+swallows C2, and the cleanest environment in the design stops being clean.
 
-**How to answer.** Read the ARC-AGI-3 action cap per game from the competition docs, then
-instrument the existing `../Arc-Prize` harness to count the minimum actions a single
-write–use–validate cycle costs on `ft09` / `ls20` / `vc33`. Compare.
+**How to answer.** Give a frontier model the environment description and *no experimental access*,
+ask for its best parameter estimate, and compare to the estimate after a full experimental budget.
+The gap is the headroom C2 has to work in. Do this across all ten environments — the answer will
+vary by environment, and the subset with a large gap is the working set.
+
+**Weak prior evidence:** the original paper reports that augmenting an LLM agent with an explicit
+statistical model does not reliably improve results, which suggests priors are not doing all the
+work. Not the same measurement, though.
+
+**Fallback if negative.** Construct the hidden system from a family the model has no prior over —
+randomly generated functional forms, or a composed system whose structure is sampled rather than
+named. Costs external validity, buys the absence guarantee back.
 
 **Status:** unanswered.
 
@@ -37,47 +48,14 @@ the resolution determines whether C3 has a mechanism or is a wrapper around C4.
 
 **How to answer.** Take a small context store built on one backbone, evaluate it entry-by-entry
 on two others via leave-one-out ablation, and look at the *distribution* of per-entry effect
-sizes rather than the mean. The claim needs variance across backbones at the entry level.
-Cheap tasks are fine — this is a variance question, not a performance question.
+sizes rather than the mean. The claim needs variance across backbones at the entry level. Cheap
+tasks are fine — this is a variance question, not a performance question.
 
 **Status:** unanswered.
 
 ---
 
-## Q3 — Workspace and compute plan
-
-Related work lives in two sibling repos:
-
-- `../Arc-Prize` — existing ARC-AGI-3 system and harness. The asset this program is built on.
-- `../arc-agi-2` — ARC-AGI-2 Kaggle campaign, active.
-
-Undecided: whether the ARC-AGI-3 harness work happens here or in `Arc-Prize`, and how compute is
-split. The local box is an RX 9070 XT (16GB, gfx1201, ROCm) with known constraints from the
-ARC-AGI-2 campaign; Kaggle GPU quota is shared at 30h/week.
-
-Note the shape of the cost differs from the ARC-AGI-2 campaign: scaffold-RSI experiments are
-inference-heavy rather than training-heavy, which fits the available hardware better — but the
-Kaggle track's offline constraint means the base model must run locally, which puts a hard
-ceiling on model size.
-
-**Status:** undecided.
-
----
-
-## Q4 — Scheduling against the ARC-AGI-2 campaign
-
-ARC-AGI-3 Milestone #2 is **2026-09-30** ($25K / $10K / $2.5K, open-sourcing required for
-eligibility). The ARC-AGI-2 entry window is 10-26 / final 11-02, with the ARC Prize paper track
-due 11-08.
-
-These overlap. Committing to a Milestone #2 submission is a real trade against ARC-AGI-2
-preparation, not an addition to it.
-
-**Status:** undecided.
-
----
-
-## Q5 — Does the ceiling protocol survive contact with reviewers?
+## Q3 — Does the ceiling protocol survive contact with reviewers?
 
 C1's "slack-free ceiling" is the program's main exposure. An oracle harness is a judgement call
 and best-of-N at maximum reasoning effort is a proxy for unbounded effort. Worth drafting the
@@ -85,3 +63,31 @@ protocol early and showing it to someone adversarial before spending compute on 
 pre-registration that does not hold up is cheaper to discover now than after the runs.
 
 **Status:** protocol not drafted.
+
+---
+
+## Q4 — Budget and model access
+
+The design no longer needs local models, which was an artefact of the rejected ARC-AGI-3 testbed.
+Both testbeds are inference-heavy and GPU-light: BoxingGym environments are statistical
+simulators, and EvoAgentBench is API-driven. The binding constraint is API spend, not the local
+box.
+
+Undecided: which backbones to run for C3's cross-model comparison. EvoAgentBench used Qwen3.5-27B,
+Qwen3.5-397B and Gemma-4-31B as evaluation backbones — matching them makes the comparison direct
+but costs more than picking cheaper models and forfeiting the head-to-head table.
+
+**Status:** undecided.
+
+---
+
+## Q5 — Where does this get submitted?
+
+The four claims do not have to land as one paper. C1 alone is a short, sharp negative result. C1
+plus C2 is the full slack-versus-capability story and the strongest single submission. C3 and C4
+are a methods paper that stands on its own.
+
+Worth deciding early, because it changes how much of the mechanism has to be built before there
+is anything publishable.
+
+**Status:** undecided.

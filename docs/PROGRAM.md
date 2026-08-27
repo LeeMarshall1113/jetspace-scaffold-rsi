@@ -25,6 +25,10 @@ clean measurement is itself the contribution, and it reframes every result that 
 2. Run offline scaffold evolution against the same model to budget exhaustion.
 3. Compare on held-out tasks. Report the gap with confidence intervals, not point estimates.
 
+Run this on both testbeds. BoxingGym gives the clean version (C2 needs the same ceiling on the
+same environments); EvoAgentBench gives the version that is directly comparable to published
+numbers.
+
 **Predicted.** True.
 
 **Kills.** The implicit claim that L3 evolution creates capability.
@@ -38,30 +42,35 @@ to the program.
 
 ## C2 — Intra-episodic scaffold adaptation crosses the ceiling
 
-**Claim.** In a novel interactive environment, an artifact written, used and validated *inside a
-single run* achieves what no oracle prompt can, because the required knowledge — the rules of
-this specific game — is not in the weights and cannot be prompted in.
+**Claim.** When the required knowledge is absent from the weights by construction, an artifact
+written, used and validated *inside a single run* achieves what no oracle prompt can.
 
 **Why it matters.** This is the positive result that separates the two regimes and locates where
 scaffold RSI is not slack. Nobody works at this timescale: ACE, GEPA, AutoMem and every method
 in EvoAgentBench assume a train/test split with many rollouts. Intra-episodic write–use–validate
 is an unoccupied operating point.
 
-**Protocol.**
+**Protocol.** On BoxingGym, with instances resampled so the hidden system's parameters cannot
+have been seen:
 
-1. Same ceiling measurement as C1, on ARC-AGI-3 public games.
-2. Agent maintains a within-run artifact store: writes hypotheses about game mechanics, uses
-   them, validates against observed transitions, revises.
-3. Compare against the C1 ceiling on the same games and action budget.
+1. Same ceiling measurement as C1, on the same environments.
+2. Agent maintains a within-run artifact store: writes hypotheses about the hidden system, designs
+   experiments against them, validates predictions against observed outcomes, revises. The
+   environment's own loop already has this shape, so the scaffold contribution is the *store and
+   its curation*, not the loop.
+3. Compare against the C1 ceiling at matched experiment budgets.
 
-**Predicted.** True, with the effect appearing on **action-efficiency before level count** —
-ARC-AGI-3's tiebreaker is total actions, so this is where an early signal should show up.
+**Predicted.** True, with the effect appearing on **data-efficiency before final prediction
+error** — fewer experiments to reach the same posterior is where an early signal should show up.
 
 **Establishes.** The boundary condition under which scaffold RSI is not slack recovery.
 
-**Risk.** If the per-game action budget does not permit a full write–use–validate cycle inside
-one run, C2 has no room to express itself. **Verify this before building anything** — see
-[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) Q1.
+**Risk.** BoxingGym's environments are drawn from recognisable model families, so a strong
+parametric prior could substitute for genuine experimentation — which would mean the knowledge
+was not as absent as claimed and C1's ceiling swallows C2. **Verify before building anything** —
+see [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) Q1. The original paper's finding that an explicit
+statistical model does not reliably help is weak evidence the risk is manageable, but it is not
+the same measurement.
 
 ---
 
@@ -129,8 +138,8 @@ it to non-code artifacts is novel.
 ## Dependency order
 
 ```
-Q1 (action budget) ──gates──> C2
-Q2 (model-stability) ──gates──> C3
+Q1 (prior substitution) ──gates──> C2
+Q2 (model-conditionality) ──gates──> C3
 
 C1 ──defines the measuring stick──> C2
                                      │
@@ -148,11 +157,12 @@ anything. Do not write the attested-context format until Q2 comes back.
 |---|---|---|
 | 1 | The ceiling definition gets attacked as ill-posed | pre-register the protocol; publish the oracle harness; report sensitivity to N |
 | 2 | Attestations turn out model-stable (Q2 negative) | drop C3's gating; fold the remaining contribution into C4 |
-| 3 | Action budget too tight for write–use–validate (Q1 negative) | C2 has no room; fall back to cross-episode adaptation and accept a weaker claim |
-| 4 | Someone publishes the join first | lead with the testbed, not the idea — see below |
+| 3 | A parametric prior substitutes for experimentation (Q1 negative) | BoxingGym's knowledge is not absent enough; move C1/C2 to a construction where the hidden system is sampled from a family the model has no prior over |
+| 4 | Someone publishes the join first | lead with the measurement, not the idea — see below |
 
 **On #4.** Both flanks move monthly; AutoMem landed in August. The defensible position is not
-the idea, it is the environment: an existing ARC-AGI-3 harness plus the fact that no scaffold-RSI
-paper works in interactive-novelty settings. Frame the contribution as *the first measurement of
-scaffold RSI where the required knowledge is genuinely absent from the model*, and the mechanism
-as what that measurement required.
+the mechanism, it is the measurement: nobody has run a scaffold-RSI experiment in a setting where
+the required knowledge is absent from the weights by construction, so nobody can currently say
+whether any of it creates capability. Frame the contribution as *the first measurement that
+separates slack recovery from capability creation*, with the attested-context format as what that
+measurement required rather than as the headline.
