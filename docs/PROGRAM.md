@@ -1,153 +1,193 @@
 # Research program
 
-Four falsifiable claims on one experimental spine. Each stands alone as a publishable finding,
-including if it comes out negative. Ordering is dependency, not priority: C1 defines the
-measuring stick everything else is scored against.
+One paper, four claims, ordered by contribution. C2 is the result; C1 is the control that makes
+C2 meaningful; C3 is the mechanism that makes C2 hold across backbones; C4 is a stretch goal that
+costs little given the chosen codebase.
 
-Background and citations: [LITERATURE.md](LITERATURE.md).
-
----
-
-## C1 — Offline scaffold evolution cannot beat its own model's slack-free ceiling
-
-**Claim.** For a fixed base model, no amount of offline scaffold evolution exceeds what that
-model achieves under an oracle harness at unbounded reasoning effort.
-
-**Why it matters.** If true, the field's headline numbers — DGM's 20→50% on SWE-bench included —
-are slack recovery, not capability creation. Nobody has run this comparison. Saying so with a
-clean measurement is itself the contribution, and it reframes every result that follows.
-
-**Protocol.**
-
-1. Define the ceiling operationally and *publish the definition before running it*:
-   same base model, best-of-N at maximum reasoning effort, human-written oracle harness,
-   no learned artifact, N chosen so the curve has visibly flattened.
-2. Run offline scaffold evolution against the same model to budget exhaustion.
-3. Compare on held-out tasks. Report the gap with confidence intervals, not point estimates.
-
-Run this on both testbeds. BoxingGym gives the clean version (C2 needs the same ceiling on the
-same environments); EvoAgentBench gives the version that is directly comparable to published
-numbers.
-
-**Predicted.** True.
-
-**Kills.** The implicit claim that L3 evolution creates capability.
-
-**Risk.** "Slack-free ceiling" is the reviewer's target and it is not a well-defined object —
-an oracle harness is a judgement call and best-of-N at max effort is a proxy. Pre-register the
-exact protocol or C1 becomes arguable rather than measured. This is the single largest threat
-to the program.
+Background and citations: [LITERATURE.md](LITERATURE.md). What changed and why:
+[REVISIONS.md](REVISIONS.md).
 
 ---
 
-## C2 — Intra-episodic scaffold adaptation crosses the ceiling
+## C2 — An agent that rewrites its own scaffold within a single run crosses the ceiling
 
-**Claim.** When the required knowledge is absent from the weights by construction, an artifact
-written, used and validated *inside a single run* achieves what no oracle prompt can.
+**Headline claim.** Where the required knowledge is absent from the weights by construction, an
+agent that modifies **its own scaffold** inside a single run achieves what no oracle prompt and no
+offline-evolved scaffold can.
 
-**Why it matters.** This is the positive result that separates the two regimes and locates where
-scaffold RSI is not slack. Nobody works at this timescale: ACE, GEPA, AutoMem and every method
-in EvoAgentBench assume a train/test split with many rollouts. Intra-episodic write–use–validate
-is an unoccupied operating point.
+**The narrowing that matters.** "Within-run adaptation beats offline" is **already demonstrated**.
+Model Discovery Agent (2608.09696) does hypothesis → act → validate → revise inside one run: it
+expands the hypothesis space when predictive-check error is too high and contracts it when the
+posterior concentrates. What MDA does *not* do is let the agent rewrite the accumulator — its
+meta-controller is a fixed, hand-built Bayesian design. C2 is therefore specifically about
+**scaffold self-modification at intra-run timescale**, not about intra-run adaptation.
 
-**Protocol.** On BoxingGym, with instances resampled so the hidden system's parameters cannot
-have been seen:
+**Why it is still open.** Four papers with intra-run-sounding framings were checked word-for-word
+and all confirmed inter-episodic only: TTHE (2607.08124), JIT-Agent (2608.25593), HELIX
+(2608.13951), Recuris (2608.24876). Every offline method — ACE, GEPA, AutoMem, everything in
+EvoAgentBench — assumes a train/test split with many rollouts.
 
-1. Same ceiling measurement as C1, on the same environments.
-2. Agent maintains a within-run artifact store: writes hypotheses about the hidden system, designs
-   experiments against them, validates predictions against observed outcomes, revises. The
-   environment's own loop already has this shape, so the scaffold contribution is the *store and
-   its curation*, not the loop.
-3. Compare against the C1 ceiling at matched experiment budgets.
+**Clock.** Three independent "test-time" / "just-in-time" / "online" framings landed within three
+weeks of 2026-08. This is the fastest-closing window in the program. Prioritise accordingly.
 
-**Predicted.** True, with the effect appearing on **data-efficiency before final prediction
-error** — fewer experiments to reach the same posterior is where an early signal should show up.
+**Protocol.** On NEURONBENCH primarily, DiscoverPhysics-with-procedural-force-laws for scale:
 
-**Establishes.** The boundary condition under which scaffold RSI is not slack recovery.
+1. Measure the composite ceiling from C1 on the same worlds.
+2. Agent maintains a within-run scaffold it may rewrite: hypothesis store, the routine that
+   proposes experiments, and the rule that decides what to keep. The environment supplies the
+   validation signal; the contribution is that the *machinery* is mutable, not the hypotheses.
+3. Compare at matched experiment budgets and matched token budgets.
 
-**Risk.** BoxingGym's environments are drawn from recognisable model families, so a strong
-parametric prior could substitute for genuine experimentation — which would mean the knowledge
-was not as absent as claimed and C1's ceiling swallows C2. **Verify before building anything** —
-see [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) Q1. The original paper's finding that an explicit
-statistical model does not reliably help is weak evidence the risk is manageable, but it is not
-the same measurement.
+**Predicted.** True, with the effect on **data-efficiency before final error**. MDA's own framing
+supports this — "this gap is one of data efficiency, not capability" — and these benchmarks are
+built to measure exactly that.
+
+**Risk.** If the agent's scaffold rewrites converge to something MDA's hand-built controller
+already encodes, the result is a rediscovery, not a contribution. Mitigate by reporting *what the
+agent wrote*, not just the score.
 
 ---
 
-## C3 — Attested entries transfer positively; unattested ones reproduce the negative cells
+## C3 — Per-backbone attested entries, gated at read time, eliminate negative transfer
 
-**Claim.** Making per-backbone effect size a first-class field of a context entry, and gating on
-it at read time, eliminates the negative-transfer cells that every automatic method in
-EvoAgentBench exhibits.
+**Claim.** Making measured effect size **per backbone** a first-class field of a learned-context
+entry, and refusing to load entries whose attestation does not cover the current model, removes
+the negative-transfer cells every automatic method exhibits.
 
-**Why it matters.** This is the join nobody has made. Attribution methods (AttriMem, TreeMem,
-Memory-R2) have the measurement but stay inside one system. Portability protocols (PAM,
-memorywire, Engram) have the transport but never check utility — PAM's headline metric is
-behavioural continuity on N=50 and the paper does not mention effect size at all. Portability
-without attestation exports negative transfer.
+**Two motivations; the second is stronger.**
 
-**Mechanism.** The unit of learned context becomes an object with four fields:
+*Capability.* EvoAgentBench's 17 negative cells, worst at −36.3. The structural pattern is the
+interesting part: OpenClaw carries **12 of 17 (71%)** despite having 26 tools to Nanobot's 7 —
+more scaffold surface correlated with *more* negative transfer. By domain: knowledge work 7/18,
+SWE 6/18, algorithmic 3/18, web research 1/18.
+
+*Safety.* Unattested accumulation is exploitable and the damage is not undoable. Skill backdoors
+via poisoned trajectories reach 56–89% attack success (2608.03509); trajectory poisoning reaches
+91% (2608.05563); individually-safe experiences compose into unsafe behaviour (2608.01759). And
+"When Self-Evolution Backfires" (2608.05810) shows bad skill admission is **structurally
+irreversible post-hoc**, which makes pre-commit gating necessary rather than merely useful.
+
+Lead with safety. It is the better argument and it is less crowded.
+
+**Mechanism.** The unit of learned context is an object with four fields:
 
 | Field | Contents |
 |---|---|
-| `content` | the entry itself — skill, hypothesis, playbook line |
+| `content` | the entry — skill, hypothesis, playbook line |
 | `provenance` | derivation chain; which runs and which parent entries produced it |
 | `attestation[]` | measured effect size **per backbone**, with sample size and CI |
 | `retirement` | the condition under which this entry stops being loaded |
 
-Read-time gate: refuse to load an entry whose attestation does not cover the current backbone.
-Transport can reuse PAM's five-component model and Merkle-DAG provenance rather than reinventing
-it — the gap is in the evaluation layer, not the plumbing.
+**The schema is the easy part.** Confirmed: nothing anywhere combines all three of provenance,
+per-backbone effect size, and a retirement condition with read-time gating. Nearest fragments each
+miss two — ACE's `helpful=X harmful=Y` counters are global not per-backbone; memorywire has
+provenance and a quarantine state machine but no effect measurement; AutoMem measures per-backbone
+but at the *architecture* level; AttriMem attributes at write time, not read time, and has no code
+released.
 
-**Protocol.** Measure negative-cell rate, gated vs ungated, across ≥3 backbones on the same task
-set. The claim is specifically about the *rate of negative cells*, not mean gain — mean gain can
-improve while the tail stays broken, and the tail is the failure mode that matters.
+**The retirement policy is the research problem.** How much per-backbone evidence justifies
+retiring an entry is a bandit / credit-assignment design question, not a library question. That is
+where C3's contribution actually lives.
 
-**This is the mechanism contribution.** It is also where the memory-portability thread enters.
+**Steal, do not depend on:** ACE's counter notation; memorywire's quarantine-not-delete state
+machine and its thin `MemoryStore` interface over swappable backends. Skip Merkle-DAG provenance
+absent a real adversarial threat model.
 
-**Risk.** AttriMem already reports learned memory transferring across answer models with drops
-of only 2.07 / 1.25 / 2.31 points. If effect sizes are model-stable in general, gating buys
-nothing and the contribution collapses into C4. **Test this second, on cheap tasks, before
-building the format** — see [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) Q2.
+**Risk.** AttriMem reports learned memory transferring across answer models with drops of only
+2.07 / 1.25 / 2.31 points. If effect sizes are model-stable in general, gating buys nothing.
+**Test this before building the format** — [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) Q2.
 
 ---
 
-## C4 — Optimising the curator closes most of the hand-curation gap
+## C1 — The composite ceiling, and which published gains survive it
 
-**Claim.** Targeting the RSI loop at the router and retirement policy — rather than at artifact
-content — recovers a substantial fraction of the gap between hand-curated and automatic context.
+**Demoted from thesis to control condition.** The strong form — "no published work separates slack
+recovery from capability creation" — is **falsified**. Three counterexamples:
 
-**Why it matters.** There is a ready-made number to close. On EvoAgentBench, hand-curated
-Anchor Skill scores +5.8 / +7.5 / +10.5 and is positive in every domain; every automatic method
-has negative cells. That gap is the largest measured headroom in the field, and it is a
-*curation* gap, not a content gap. This is L4 on the ladder — the loop mutating the thing that
-generates, evaluates and retires artifacts, not the artifacts.
+| Paper | Ceiling crossed | Weakness of that ceiling |
+|---|---|---|
+| CyberEvolver (2605.26195) | seed pass@16, beaten by 13.6% with 17.5% *fewer* tokens | ceiling is the *seed scaffold's*, not a strong human harness; expert baselines capped at pass@4 |
+| RHI (2607.15524) | max-reasoning-effort setting, at up to 60% lower cost | same-family test-time scaling only; no best-of-N; no human oracle harness |
+| HGM (2510.21614) | SWE-agent, same backbone, matched budgets | strong human baseline, but not an oracle; no BoN or effort control |
 
-**Borrowed correction.** Score an entry by the clade it enables — which later entries it made
-possible — not by its own immediate lift. HGM established that immediate score is a weak
-predictor of a lineage's value, and greedy accumulation is the default failure mode every memory
-store ships with. Clade metaproductivity has only ever been applied to code lineages; applying
-it to non-code artifacts is novel.
+**What survives.** No paper conjoins the four axes: BoN sampling ceiling, maximum reasoning
+effort, a strong human harness, and compute matching. The contribution is the composite instrument
+plus the replication verdict.
 
-**Protocol.** Fraction of the Anchor Skill gap recovered, on the same tasks and backbones.
+**The concrete target.** CyberEvolver capped its expert baselines at pass@4 on the grounds that
+"pass@k saturates beyond k=4 for fixed scaffolds," generalising from its own seed agent's curve
+(+1.4% from k=4 to k=16). Pass@(k,T) analysis (2604.14877) shows saturation is **task-dependent**:
+on compositional multi-step tasks the gap *widens* at the right tail and curve orderings **flip
+near k=4**. CTF and pentest targets are compositional multi-step tasks. The assumption is
+unsupported in the regime it was applied to, and the error direction favours their own result.
+Their 13.6% margin is not protected against a properly-run expert-scaffold pass@16.
 
-**Novel.** Clade metaproductivity for non-code artifacts; curator-as-RSI-target.
+**Best available headroom precedent.** ReCreate (2601.11100) Appendix F: five human-designed
+scaffolds, one fixed base model, SWE-bench Lite — union solves 184, best single scaffold 147, so
+**37 issues (20% of union) are scaffold-fixable**. Clean construction, non-saturated benchmark,
+buried as appendix motivation, nobody has built on it. Use this, not CORE-Bench.
+
+*Do not* use CORE-Bench's "oracle router reaches 100%" as a headroom figure — the benchmark is
+near-saturated and headroom is 10.3 pts for Opus 4.5 but 2.6 for GPT-5.4. Its useful result is
+different: scaffold outcomes **disagreed on 31% of tasks at near-identical means**, i.e. scaffolds
+route the model to different solvable regions rather than being uniformly better or worse. That is
+the argument for curation work.
+
+**Estimator hygiene.** "Beyond Pass@k" (2608.14711) finds implementations routinely set n to the
+number of unit tests rather than independent rollouts, inflating scores by 0.85–0.97 absolute.
+State the estimator explicitly.
+
+**Reusable instrument.** PAST-Bench (2608.04003) — 26 scenarios, 204 episodes, on/off retained
+experience — isolates whether a gain is supported by evidence of the intended pathway. Reuse
+rather than rebuild.
+
+---
+
+## C4 — Clade metaproductivity for non-code artifacts
+
+**Half the original claim is occupied.** "Optimise the curator/router rather than artifact
+content" is taken:
+- **MEGA (2608.10504)** evolves "the curation strategies that govern wisdom composition."
+- **ERSkill (2608.12720)** states the gap in its own words — "the retrieval mechanisms governing
+  this memory are rarely treated as evolvable components" — then co-evolves router and skill set.
+
+**The clean half.** Applying HGM's clade metaproductivity to non-code artifacts returned **zero
+hits** across every search. Score a memory entry by the lineage it enables — which later entries
+it made possible — rather than its own immediate lift. HGM established that immediate score is a
+weak predictor of a lineage's value; greedy accumulation is the default failure mode of every
+memory store.
+
+**Why it is cheap here.** The chosen base is a fork of `metauto-ai/HGM`, which *is* the CMP
+implementation. Extending it from code lineages to memory lineages reuses the selection machinery.
+
+**Restated target.** The earlier framing — "close the gap to hand-curated Anchor Skill" — was
+wrong on two counts, corrected in [REVISIONS.md](REVISIONS.md). Anchor is not hand-curated (LLM
+extraction, three-judge canonicalisation, human arbitration only on non-unanimous pairs), and its
+routing is an **oracle**: it retrieves by curator-side Ability labels computed offline from the
+test task's own ground-truth answer and traces. The paper says so — "Anchor Skill is not a
+deployable method." Its +5.8 / +7.5 / +10.5 is an oracle-routing ceiling, definitionally
+unreachable by a real router.
+
+The premise survives and is stronger for it: EvoAgentBench §4.2's subhead is literally "The gap
+implicates method-side extraction and routing," and the paper stops there. The diagnosis is handed
+over; the fix is not taken. Target the **routing-attributable portion** of the gap.
+
+**Quantitative anchor for curation work:** "Demystifying Agent Skills" (2608.14036), 8,135 trials
+— retrieval precision collapses from **29.6% to 3.3%** as the skill pool grows.
 
 ---
 
 ## Dependency order
 
 ```
-Q1 (prior substitution) ──gates──> C2
 Q2 (model-conditionality) ──gates──> C3
+Q1 (testbed novelty)      ──gates──> C2      [BoxingGym answered NO; NEURONBENCH pending]
+Q3 (compute)              ──gates──> C3/C4 measurement on EvoAgentBench
 
-C1 ──defines the measuring stick──> C2
-                                     │
-C3 ──mechanism──> C4 ────────────────┘
+C1 ──defines the measuring stick──> C2 ──> C3 ──> C4
 ```
 
-Run Q1 and Q2 first. Both are cheap, both can kill a claim, and neither requires building
-anything. Do not write the attested-context format until Q2 comes back.
+Q2 first: cheap, no infrastructure, decides whether C3 is a mechanism or a wrapper around C4.
 
 ---
 
@@ -155,14 +195,8 @@ anything. Do not write the attested-context format until Q2 comes back.
 
 | # | Condition | Response |
 |---|---|---|
-| 1 | The ceiling definition gets attacked as ill-posed | pre-register the protocol; publish the oracle harness; report sensitivity to N |
-| 2 | Attestations turn out model-stable (Q2 negative) | drop C3's gating; fold the remaining contribution into C4 |
-| 3 | A parametric prior substitutes for experimentation (Q1 negative) | BoxingGym's knowledge is not absent enough; move C1/C2 to a construction where the hidden system is sampled from a family the model has no prior over |
-| 4 | Someone publishes the join first | lead with the measurement, not the idea — see below |
-
-**On #4.** Both flanks move monthly; AutoMem landed in August. The defensible position is not
-the mechanism, it is the measurement: nobody has run a scaffold-RSI experiment in a setting where
-the required knowledge is absent from the weights by construction, so nobody can currently say
-whether any of it creates capability. Frame the contribution as *the first measurement that
-separates slack recovery from capability creation*, with the attested-context format as what that
-measurement required rather than as the headline.
+| 1 | Composite ceiling attacked as ill-posed | pre-register the protocol; publish the harness; report sensitivity to N and state the pass@N estimator |
+| 2 | Effect sizes are model-stable (Q2 negative) | drop C3's gating; the safety argument survives on its own; fold the rest into C4 |
+| 3 | NEURONBENCH's six worlds are too few for statistics | DiscoverPhysics + procedural force-law generator becomes primary, not secondary |
+| 4 | Agent's scaffold rewrites converge on MDA's hand-built controller | report what the agent wrote; a rediscovery framed honestly is still a result, but it is a weaker one |
+| 5 | Someone publishes intra-run scaffold self-modification first | the clock is real — three near-misses in three weeks. This is the reason C2 goes first. |

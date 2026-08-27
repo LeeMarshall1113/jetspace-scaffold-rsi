@@ -5,82 +5,75 @@ scaffolding — prompts, memory, skills, control flow, curation policy — rathe
 
 Opened 2026-08-27. Field map current through arXiv 2608.
 
+> **Revision note (2026-08-27).** The program was substantially revised the day it opened, after
+> a five-agent literature sweep falsified the original headline claim and one factual error.
+> `docs/REVISIONS.md` records what changed and why. If you read an earlier commit, read that file.
+
 ---
 
 ## Thesis
 
-The field has two ICLR 2026 orals, a dedicated benchmark, and a dense literature. It does not
-have a single demonstration that a self-improving scaffold produced **capability the base model
-did not already have**. Every measured gain to date is consistent with recovering engineering
-slack.
+Scaffold-level RSI results are reported against **seed-relative, single-axis ceilings**. Nobody
+has built the composite ceiling — best-of-N sampling *and* maximum reasoning effort *and* a strong
+human harness *and* compute matching, together — so it is not currently known which published
+gains survive it.
 
-Supporting evidence, three independent sources:
+This is a narrower claim than "scaffolds only recover slack," which is **false**: three papers
+report evolved scaffolds crossing a ceiling ([CyberEvolver](https://arxiv.org/abs/2605.26195),
+[RHI](https://arxiv.org/abs/2607.15524), [HGM](https://arxiv.org/abs/2510.21614)). But each
+ceiling is weak in a specific way, and one has a documented flaw — see
+[docs/PROGRAM.md](docs/PROGRAM.md) C1.
 
-- Scaffold edits that survive selection concentrate on parsing, retries, dispatch and answer
-  extraction, and "rarely deliver domain-specific reasoning that the base model could not
-  produce given any prompt."
-- RHI's own ablation: gains "arise primarily from improved task-specific context management
-  ... rather than longer reasoning traces."
-- STOP degraded outright on weaker models (GPT-3.5, Mixtral).
-
-No published experiment separates slack-recovery from capability-creation. That experiment is
-the spine of this repo.
+The field already has a name for the underlying distinction: the **elicitation gap** (METR).
+[2606.08529](https://arxiv.org/abs/2606.08529) measures 28 points of it *within a single model*
+and concludes that "capability numbers produced under a single scaffold are scaffold-conditional
+estimates." That vocabulary is standard; use it.
 
 ## Program
 
-Four falsifiable claims. Each stands alone as a publishable finding, including negative.
+Ordered by contribution, not dependency. This is one paper, not four.
 
-| | Claim | Predicted |
+| | Claim | Status |
 |---|---|---|
-| **C1** | Offline scaffold evolution cannot beat its own model's slack-free ceiling | true |
-| **C2** | Intra-episodic scaffold adaptation crosses it, because the knowledge is genuinely absent | true |
-| **C3** | Entries carrying a per-backbone attested effect size transfer positively; unattested ones reproduce EvoAgentBench's negative cells | mechanism contribution |
-| **C4** | Optimising the curator closes most of the hand-curation gap | measurable headroom |
+| **C2** | An agent that **rewrites its own scaffold within a single run** beats the composite ceiling, where the required knowledge is absent from the weights by construction | **headline** — open, clock running |
+| **C3** | Learned-context entries carrying a **per-backbone attested effect size**, gated at read time, eliminate negative transfer | mechanism — open |
+| **C1** | The composite slack-free ceiling, and which published gains survive it | control condition, not the contribution |
+| **C4** | **Clade metaproductivity applied to non-code artifacts** — score a memory entry by the lineage it enables | stretch goal — half of the original claim is occupied |
 
-Full protocols, kill conditions and prior art in [docs/PROGRAM.md](docs/PROGRAM.md).
+Protocols, kill conditions and prior art in [docs/PROGRAM.md](docs/PROGRAM.md).
 
 ## Testbeds
 
-Two benchmarks, each doing the job it is actually suited for.
+C2 needs an environment where the required knowledge is absent **by construction**, not by
+argument. That requirement eliminates almost everything.
 
-**C1 / C2 — [BoxingGym](https://arxiv.org/abs/2501.01540)** (NeurIPS 2025). Ten environments for
-automated experimental design and model discovery. The agent proposes a model of a hidden
-system, designs experiments, observes outcomes, and revises.
+| | Role | Why |
+|---|---|---|
+| **[NEURONBENCH](https://github.com/murphyk/neuronbench)** | primary | Six mystery neurons whose membrane mechanisms were "designed in order to prevent the LLM from simply recalling the model from memory." Engineered against exactly this failure mode. MIT, active. Limit: only six worlds, and SOTA is already published. |
+| **[DiscoverPhysics](https://github.com/SampsonML/DiscoverPhysics)** + a procedural force-law generator | scalable second | 22 non-canonical worlds, half held out; authors concede they are "deliberately curated rather than genuinely novel." **But the simulator accepts arbitrary force laws** — adding a procedural generator is small, well-defined work and yields a genuinely by-construction testbed. |
+| **[BoxingGym](https://arxiv.org/abs/2501.01540)** | negative control | Where C1 should hold trivially. See below. |
+| **[EvoAgentBench](https://arxiv.org/pdf/2607.05202)** | C3/C4 measurement | Deferred — it is a GPU-infrastructure project, not an API bill. See [docs/OPEN-QUESTIONS.md](docs/OPEN-QUESTIONS.md) Q3. |
 
-Why it fits, point by point against what C2 needs:
-
-| Requirement | How BoxingGym satisfies it |
-|---|---|
-| Required knowledge genuinely absent from weights | the hidden system's parameters are sampled per instance — absent by construction, not by argument |
-| Contamination-free | re-randomise the instance; no appeal to "these games are novel" needed |
-| Write–use–validate fits inside one run | native to the environment — propose, experiment, compare, revise *is* the task loop |
-| Efficiency metric that moves before success | data-efficiency, i.e. experiments-to-convergence, which is exactly C2's predicted early signal |
-| A published bar to clear | GPT-4o struggles (original paper); [Model Discovery Agent](https://arxiv.org/abs/2608.09696) (2608.09696) is Aug 2026 SOTA |
-
-One free property worth noting: BoxingGym's discovery metric asks whether *another* agent can
-predict correctly from your agent's explanation. That is C3's transfer question already built
-into the benchmark.
-
-**C3 / C4 — [EvoAgentBench](https://arxiv.org/pdf/2607.05202)** (2607.05202). The transfer and
-curation claims need task volume, multiple backbones, and a published comparison table — all
-three are what this benchmark exists to provide. Report on their axis and compare directly
-against their per-cell numbers, including the Anchor Skill gap C4 is trying to close.
-
-Rejected: ARC-AGI-3 (competition-shaped, offline-model constraint, and the contamination
-argument is weaker than "we resampled the instance"); Agent Island (adversarial and
-winner-take-all, so the fixed ceiling C1 needs does not exist).
+**Why BoxingGym is a negative control and not the testbed.** Its structure is fixed, hardcoded
+and textbook-nameable in all ten environments; only 3–6 continuous parameters are redrawn per
+instance, from narrow priors centred on published fitted values, and with `include_prior=true`
+the domain is named outright in the prompt. The harness already ships the prior-only ablation
+(`Error@0`), and it settles the question: **six of thirteen goals get *worse* with ten
+experiments**, three more move by ≤0.04σ. That is not a window in which a ceiling crossing can
+be demonstrated — but it is a clean demonstration of prior substitution saturating a measurement,
+which is worth publishing as a control.
 
 ## Why this angle
 
 Everything in the RSI literature is measured on SWE-bench, Polyglot, AppWorld, GAIA,
 WebWalkerQA, LiveCodeBench — static distributions, contamination risk, large engineering slack.
-**No scaffold-RSI paper works in a setting where the required knowledge is provably absent from
-the model.** That is the opening: the mechanism is contestable, the measurement is not.
+The defensible position is not the mechanism, it is the **measurement**: a composite ceiling in
+an environment where the knowledge is absent by construction, which nobody has built.
 
 ## Layout
 
 ```
-docs/         thesis, field map, program, open questions
+docs/         thesis, field map, program, open questions, revision log
 research/     paper notes; PDFs gitignored
 harness/      scaffold + attested-context implementation
 experiments/  run configs and results
@@ -90,17 +83,15 @@ experiments/  run configs and results
 
 | | |
 |---|---|
-| Phase | literature complete, program drafted, nothing built |
-| Blocking | Q1 — can a strong model prior substitute for experimentation on BoxingGym? (gates C2) · Q2 — are per-entry effect sizes actually model-conditional? (gates C3) |
-| Next | Q1 and Q2. Both cheap, both can kill a claim, neither needs code written first. |
+| Phase | literature complete, program revised, nothing built |
+| Base | fork [`metauto-ai/HGM`](https://github.com/metauto-ai/HGM) — Apache-2.0, already implements clade metaproductivity, which C4 extends |
+| Blocking | Q2 (are per-entry effect sizes model-conditional?) — cheap, needs no infrastructure, decides whether C3 is a mechanism |
+| Deferred | Q3 (compute for C3/C4 measurement) |
 
 ## Reading
 
-Start with [docs/LITERATURE.md](docs/LITERATURE.md) — the lineage, the three bounding results,
-and the claim map. Ten papers in argument order at the bottom.
-
-<sub>There is also a rendered version of the field map, but it is a private link that only
-resolves for the maintainer, so it is deliberately not published here.</sub>
+Start with [docs/LITERATURE.md](docs/LITERATURE.md) — the lineage, the results that bound the
+design, and the claim map. Reading order at the bottom.
 
 ---
 
@@ -110,7 +101,11 @@ This README — and the files under `docs/` — were drafted by an AI assistant 
 stay that way until a human wants to rewrite them. The research direction, the constraints, and
 the calls about what to pursue are the maintainer's. The prose and the literature sweep are not.
 
-Saying so plainly seems better than letting you work it out from the em-dashes.
+Saying so plainly seems better than letting you work it out from the em-dashes. It is also
+load-bearing: an earlier revision of this file asserted that Model Discovery Agent was
+state-of-the-art on BoxingGym. It is not, and never touched that benchmark. The error came from
+an unverified search summary. `docs/REVISIONS.md` logs it. Treat unsourced claims here as
+provisional and check the arXiv IDs.
 
 **If you'd like to rewrite any of it in your own voice, please do — that would be genuinely
 welcome.** A PR or an issue is plenty; no need to ask first. The parts most worth a human pass
