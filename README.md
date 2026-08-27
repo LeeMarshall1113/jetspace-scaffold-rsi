@@ -96,9 +96,11 @@ experiments/  run configs and results
 
 ## Reading
 
-Start with [docs/LITERATURE.md](docs/LITERATURE.md). Ten papers in argument order at the bottom.
+Start with [docs/LITERATURE.md](docs/LITERATURE.md) — the lineage, the three bounding results,
+and the claim map. Ten papers in argument order at the bottom.
 
-Field map as a rendered page: https://claude.ai/code/artifact/c8faf4bb-507f-487f-a163-048c26310e3a
+<sub>There is also a rendered version of the field map, but it is a private link that only
+resolves for the maintainer, so it is deliberately not published here.</sub>
 
 ---
 
