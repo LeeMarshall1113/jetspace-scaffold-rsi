@@ -5,9 +5,11 @@ scaffolding — prompts, memory, skills, control flow, curation policy — rathe
 
 Opened 2026-08-27. Field map current through arXiv 2608.
 
-> **Revision note (2026-08-27).** The program was substantially revised the day it opened, after
-> a five-agent literature sweep falsified the original headline claim and one factual error.
-> `docs/REVISIONS.md` records what changed and why. If you read an earlier commit, read that file.
+> **Status (2026-08-28).** The original four-claim program is superseded. Occupancy sweeps
+> falsified or found published work occupying C1, most of C2, C3's strong form, half of C4, and
+> a later big-model-teaches-small pivot. What survived is a single short measurement paper —
+> see `docs/PAPER-PLAN.md`. `docs/REVISIONS.md` records what died and why. The durable assets
+> are the Q2 results and the measurement instrument, not the original claims.
 
 ---
 
