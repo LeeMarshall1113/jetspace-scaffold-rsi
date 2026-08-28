@@ -28,10 +28,15 @@ sys.path.insert(0, str(HERE))
 import store as S                                    # noqa: E402
 from tasks import make_tasks, render_record, parse_output, score, FIELDS  # noqa: E402
 
+# Derived from FIELDS, never hardcoded. A hardcoded key list silently survived a
+# field rename once: the model emitted the old keys it had been told to, three
+# fields parsed as <none> in every condition, and the result read as "these fields
+# floor" rather than "the prompt is stale".
 SYSTEM = (
     "You normalise messy data records. Apply the notes you are given, then output "
-    "exactly six lines in the form key=value, with keys name, dob, phone, amount, "
-    "weight, code, in that order. Output nothing else -- no explanation, no code fences."
+    f"exactly {len(FIELDS)} lines in the form key=value, with keys "
+    f"{', '.join(FIELDS)}, in that order. "
+    "Output nothing else -- no explanation, no code fences."
 )
 
 PROMPT = """Notes from previous records:
@@ -63,13 +68,21 @@ def build_prompt(tok, store_key, entry_ids, record):
         return tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
 
 
-def conditions():
-    """Per store: ('<K>:full', all ids) then one ('<K>:loo:<id>', all-but-id)."""
-    for store_key in ("A", "B"):
+def conditions(store_set="ab"):
+    """Per store: full, one leave-one-out per entry, and a hint-free baseline.
+
+    The 'none' condition (distractors only) is what makes an *absolute* per-entry
+    effect measurable rather than only an effect relative to the rest of the
+    store. Without it a wrong entry whose neighbours already produce the same
+    behaviour reads as harmless, which is exactly how the v2 instrument missed
+    the negative direction.
+    """
+    for store_key in S.STORE_SETS[store_set]:
         ids = S.ids(store_key)
         yield store_key, f"{store_key}:full", ids
         for k in ids:
             yield store_key, f"{store_key}:loo:{k}", [i for i in ids if i != k]
+        yield store_key, f"{store_key}:none", [k for k in ids if S.CLASS_OF[k] == "distractor"]
 
 
 def main():
@@ -80,6 +93,8 @@ def main():
     ap.add_argument("--batch", type=int, default=8)
     ap.add_argument("--max-new", type=int, default=128)
     ap.add_argument("--mem-frac", type=float, default=0.90)
+    ap.add_argument("--stores", default="mixed", choices=["mixed"],
+                    help="mixed = v3 one hint per field (v2 a/b retired, see store.py)")
     args = ap.parse_args()
 
     outdir = HERE / "results"
@@ -119,10 +134,10 @@ def main():
     model.generation_config.top_p = None
     model.generation_config.top_k = None
 
-    work = [(sk, cond, ids, t) for sk, cond, ids in conditions() for t in tasks
+    work = [(sk, cond, ids, t) for sk, cond, ids in conditions(args.stores) for t in tasks
             if (cond, t["id"]) not in done]
     print(f"[plan] {len(work)} generations remaining "
-          f"({len(list(conditions()))} conditions x {len(tasks)} tasks)")
+          f"({len(list(conditions(args.stores)))} conditions x {len(tasks)} tasks)")
 
     # Cooperative preemption: the broker's lease wrapper touches this file when
     # it wants the lease back. A batch boundary is a clean checkpoint -- every

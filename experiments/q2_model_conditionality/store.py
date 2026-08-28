@@ -19,21 +19,26 @@ Entries are written in the flat imperative register agent memory systems actuall
 emit (ACE playbook bullets, ReasoningBank strategies), not as documentation.
 """
 
+# OBVIOUS-field hints (email, zip, state): the correct hint restates what the
+# model does anyway, so it should measure near zero. The wrong hint contradicts a
+# default the model gets right, which is what makes a negative effect expressible.
+# ARBITRARY-field hints (dob, amount, code): the reverse -- correct hints carry
+# most of the value, wrong hints have little to destroy.
 CORRECT = [
-    ("c_name", "The name field is stored 'Last, First'. Emit it as 'First Last'."),
+    ("c_iban", "Account references are stored in space-separated groups. Emit them with no spaces."),
+    ("c_zip", "Postcodes are stored with a stray internal space. Emit them with no spaces."),
+    ("c_state", "State codes are two-letter abbreviations. Emit them uppercased."),
     ("c_dob", "Dates in this source are day-first: DD/MM/YYYY. Emit ISO YYYY-MM-DD."),
-    ("c_phone", "Phone numbers include a national trunk prefix '(0)' after the country code. Drop it and all spacing; keep the leading '+'."),
     ("c_amount", "The amount field is stored in minor units (cents). Emit major units with two decimal places."),
-    ("c_weight", "The weight column is kilograms. Emit the number followed by ' kg'."),
     ("c_code", "In the code field the hyphens are separators, not data. Emit the code without them, uppercased."),
 ]
 
 WRONG = [
-    ("w_name", "The name field is already in display order. Emit it unchanged."),
+    ("w_iban", "The group spacing in an account reference is significant and must be preserved exactly."),
+    ("w_zip", "The space inside a postcode is a significant district separator. Keep it."),
+    ("w_state", "State codes are stored lowercase by convention. Emit them lowercased."),
     ("w_dob", "Dates in this source are US format: MM/DD/YYYY. Emit ISO YYYY-MM-DD."),
-    ("w_phone", "The '(0)' in a phone number is part of the subscriber number. Keep it, and keep the spacing."),
     ("w_amount", "The amount field is stored in whole major units already. Emit it unchanged."),
-    ("w_weight", "The weight column is pounds. Emit the number followed by ' lb'."),
     ("w_code", "In the code field the hyphens are significant. Keep them, and keep the original lowercase."),
 ]
 
@@ -46,10 +51,47 @@ DISTRACTOR = [
     ("d_log", "Parsing failures should be logged at WARN, not ERROR."),
 ]
 
-STORES = {
-    "A": CORRECT + DISTRACTOR,
-    "B": WRONG + DISTRACTOR,
-}
+# ---------------------------------------------------------------- store sets
+#
+# v2 (A/B): all-correct vs all-wrong. Measured cleanly in one direction and
+# floored in the other -- see RESULTS.md. The cause was NOT a floor in the naive
+# sense. Six same-direction wrong hints make the model adopt a coherent
+# "preserve the raw formatting" stance, and that stance survives removing any
+# single hint: with w_phone dropped, Qwen2.5-Coder-3B still emitted
+# '+31%20(0)%2015%207814226' rather than reverting to its 0.96-accurate default.
+# So a wrong entry's leave-one-out effect measured ~0 because its neighbours
+# were doing its job. Cross-entry interference, not absence of headroom.
+#
+# v3 (M1/M2): each field gets exactly one hint, and the correct/wrong assignment
+# alternates by field, so no coherent global stance can form. Removing a wrong
+# hint now leaves a majority-correct context, and the model falls back to its own
+# default for that field -- which is what makes a negative effect expressible.
+# The two stores are complementary, so every field is measured in both directions
+# across the pair.
+
+_BY_ID = dict(CORRECT + WRONG + DISTRACTOR)
+
+
+def _mixed(correct_fields):
+    """One hint per field: correct for the named fields, wrong for the rest."""
+    out = []
+    for f in ("iban", "zip", "state", "dob", "amount", "code"):
+        eid = f"{'c' if f in correct_fields else 'w'}_{f}"
+        out.append((eid, _BY_ID[eid]))
+    return out + DISTRACTOR
+
+
+M1 = _mixed({"iban", "state", "amount"})    # wrong on zip, dob, code
+M2 = _mixed({"zip", "dob", "code"})         # wrong on iban, state, amount
+
+# The v2 A/B stores are deliberately NOT defined here. Their entry ids referred to
+# fields (name, phone, weight) that no longer exist, so keeping the names alive
+# would silently run a DIFFERENT experiment under an old label -- the same class of
+# bug that has already cost one full run today. v2 is reproducible at commit
+# dc15ee7, and its raw data and findings are committed under results/ and
+# RESULTS.md.
+STORES = {"M1": M1, "M2": M2}
+STORE_SETS = {"mixed": ("M1", "M2")}
 
 CLASS_OF = ({k: "correct" for k, _ in CORRECT}
             | {k: "wrong" for k, _ in WRONG}
@@ -57,10 +99,10 @@ CLASS_OF = ({k: "correct" for k, _ in CORRECT}
 
 # Field each entry targets. Distractors target nothing.
 TARGET_FIELD = {
-    "c_name": "name", "c_dob": "dob", "c_phone": "phone",
-    "c_amount": "amount", "c_weight": "weight", "c_code": "code",
-    "w_name": "name", "w_dob": "dob", "w_phone": "phone",
-    "w_amount": "amount", "w_weight": "weight", "w_code": "code",
+    "c_iban": "iban", "c_zip": "zip", "c_state": "state",
+    "c_dob": "dob", "c_amount": "amount", "c_code": "code",
+    "w_iban": "iban", "w_zip": "zip", "w_state": "state",
+    "w_dob": "dob", "w_amount": "amount", "w_code": "code",
 }
 
 
