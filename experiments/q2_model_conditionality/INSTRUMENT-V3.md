@@ -76,8 +76,51 @@ rests on it.
   no longer exist, and keeping the names alive would have run a different experiment under
   an old label. v2 is reproducible at commit `dc15ee7`.
 
-## Next
+## Coverage check at n=50 — GATE FAILED
 
-Run at n=50 on one backbone first to measure actual negative-effect coverage. Only if
-three or more entries reliably express negatives is a four-backbone sign-flip test worth
-the compute.
+Run 2026-08-28, Qwen2.5-Coder-3B, 1296 generations. Pre-registered gate: >=3 of 12 entries
+expressing a negative ABS effect. **Result: 1/12.** Not proceeding to E2/E3.
+
+| | |
+|---|---|
+| entries with negative ABS effect | **1/12** (`w_zip`, -0.20) — needed >=3 |
+| LOO/ABS magnitude disagreement >0.05 | 3/12 |
+| LOO/ABS **sign** disagreement | 1/12 |
+
+Hint-free baselines came out as designed for two of three OBVIOUS fields — `iban` 1.00,
+`zip` 1.00 — so the premise held. `state` did not (0.02); the 3B does not uppercase a
+two-letter code unprompted, and it does not belong in the OBVIOUS set.
+
+**The blocking problem is not the baselines, it is that the wrong hints do not bite.**
+`w_iban` measures **+0.00 against a hint-free baseline of 1.00**: told the group spacing is
+significant, the model strips it anyway. Same at smoke scale, so this is stable.
+
+The two requirements for a measurable negative are in tension:
+
+- the model's unaided default must be **right** (so there is something to destroy), and
+- a wrong hint must **override** that default.
+
+A model confident enough to get something right unprompted is generally confident enough to
+ignore an instruction contradicting it. That is a finding, not only an obstacle: **models
+resist implausible instructions precisely where they are competent.**
+
+### What that implies about the wider claim
+
+Our wrong hints are *implausible* — they contradict a transform the model performs
+confidently. Real negative transfer, of the kind 2605.23899 measures at 25% of
+extractor-target pairs (47% on ALFWorld), most likely comes from *plausible but wrong*
+entries: content the model has no grounds to reject. Those are different mechanisms, and
+this instrument only probes the first.
+
+**Any v4 should make wrong entries plausible rather than contradictory** — e.g. a convention
+that is correct for a neighbouring field, or right for most records and wrong for a subset.
+That is a third instrument rebuild and should not be started without deciding it is worth it.
+
+### What survived
+
+The LOO/ABS disagreement is real and measured: 3 of 12 entries diverge by >0.05, one by
+**0.72** (`w_state`: LOO -0.74, ABS -0.02), and `w_dob` disagrees in sign (LOO -0.04, ABS
++0.14). That is direct evidence for non-additivity — claim A of
+[PAPER-PLAN.md](../../docs/PAPER-PLAN.md) — independent of whether negatives are expressible.
+It is thinner than the plan assumed, and it cannot carry E3, which needs enough
+negative-capable entries for independent gating to visibly mis-select.
