@@ -1,104 +1,92 @@
 # jetspace-scaffold-rsi
 
-Research on **scaffold-level recursive self-improvement**: loops that improve an agent's
-scaffolding — prompts, memory, skills, control flow, curation policy — rather than its weights.
+Measurement work on **inference-time context for LLM agents**: how much a learned-context
+entry is actually worth, and whether that can be established the way current systems
+establish it.
 
-Opened 2026-08-27. Field map current through arXiv 2608.
-
-> **Status (2026-08-28).** The original four-claim program is superseded. Occupancy sweeps
-> falsified or found published work occupying C1, most of C2, C3's strong form, half of C4, and
-> a later big-model-teaches-small pivot. `docs/REVISIONS.md` records what died and why.
->
-> What survived is one short methodological note — **[docs/NOTE-off-target-effects.md](docs/NOTE-off-target-effects.md)**:
-> context entries change model accuracy on fields they never mention (+0.72 and −0.48 measured),
-> so validating entries independently — as SkillGen, SkillOpt and strong-to-weak harness
-> construction all do — keeps entries that are harmful in situ and underprices entries that are
-> valuable in situ. `docs/PAPER-PLAN.md` holds the fuller plan whose headline experiment was
-> gated out for lack of dynamic range.
+Opened 2026-08-27.
 
 ---
 
-## Thesis
+## The result
 
-Scaffold-level RSI results are reported against **seed-relative, single-axis ceilings**. Nobody
-has built the composite ceiling — best-of-N sampling *and* maximum reasoning effort *and* a strong
-human harness *and* compute matching, together — so it is not currently known which published
-gains survive it.
+**Context entries change a model's accuracy on fields they never mention.**
 
-This is a narrower claim than "scaffolds only recover slack," which is **false**: three papers
-report evolved scaffolds crossing a ceiling ([CyberEvolver](https://arxiv.org/abs/2605.26195),
-[RHI](https://arxiv.org/abs/2607.15524), [HGM](https://arxiv.org/abs/2510.21614)). But each
-ceiling is weak in a specific way, and one has a documented flaw — see
-[docs/PROGRAM.md](docs/PROGRAM.md) C1.
+Remove the only entry targeting a field, leaving five hints about *other* fields plus six
+topically-irrelevant distractors. Those non-mentioning entries still move it, hard:
 
-The field already has a name for the underlying distinction: the **elicitation gap** (METR).
-[2606.08529](https://arxiv.org/abs/2606.08529) measures 28 points of it *within a single model*
-and concludes that "capability numbers produced under a single scaffold are scaffold-conditional
-estimates." That vocabulary is standard; use it.
+| field | no hints | other-field hints only | full store |
+|---|---|---|---|
+| `state` | 0.02 | **0.74** | 0.00 |
+| `dob` | 0.48 | **0.00** | 1.00 |
 
-## Program
+**+0.72** and **−0.48** from entries with no reference to the field — larger than most of the
+on-target effects being measured.
 
-Ordered by contribution, not dependency. This is one paper, not four.
+This makes independent per-entry validation unsound, and that is the protocol published
+systems use. SkillGen (2605.10999) gates one skill at a time; SkillOpt (2605.23904) accepts
+an edit only on a strict score improvement; strong-to-weak harness construction (2608.12307)
+refines one bundled object. Concretely: an entry stating a false convention measures **−0.02**
+evaluated alone — indistinguishable from noise, so a gate keeps it — and costs **−0.74** in
+the store it actually deploys into, because the other entries would have carried that field
+and it blocks them. The error runs both ways: another entry is worth +0.52 alone and +1.00 in
+context.
 
-| | Claim | Status |
-|---|---|---|
-| **C2** | An agent that **rewrites its own scaffold within a single run** beats the composite ceiling, where the required knowledge is absent from the weights by construction | **headline** — open, clock running |
-| **C3** | Learned-context entries carrying a **per-backbone attested effect size**, gated at read time, eliminate negative transfer | mechanism — open |
-| **C1** | The composite slack-free ceiling, and which published gains survive it | control condition, not the contribution |
-| **C4** | **Clade metaproductivity applied to non-code artifacts** — score a memory entry by the lineage it enables | stretch goal — half of the original claim is occupied |
-
-Protocols, kill conditions and prior art in [docs/PROGRAM.md](docs/PROGRAM.md).
-
-## Testbeds
-
-C2 needs an environment where the required knowledge is absent **by construction**, not by
-argument. That requirement eliminates almost everything.
-
-| | Role | Why |
-|---|---|---|
-| **[NEURONBENCH](https://github.com/murphyk/neuronbench)** | primary | Six mystery neurons whose membrane mechanisms were "designed in order to prevent the LLM from simply recalling the model from memory." Engineered against exactly this failure mode. MIT, active. Limit: only six worlds, and SOTA is already published. |
-| **[DiscoverPhysics](https://github.com/SampsonML/DiscoverPhysics)** + a procedural force-law generator | scalable second | 22 non-canonical worlds, half held out; authors concede they are "deliberately curated rather than genuinely novel." **But the simulator accepts arbitrary force laws** — adding a procedural generator is small, well-defined work and yields a genuinely by-construction testbed. |
-| **[BoxingGym](https://arxiv.org/abs/2501.01540)** | negative control | Where C1 should hold trivially. See below. |
-| **[EvoAgentBench](https://arxiv.org/pdf/2607.05202)** | C3/C4 measurement | Deferred — it is a GPU-infrastructure project, not an API bill. See [docs/OPEN-QUESTIONS.md](docs/OPEN-QUESTIONS.md) Q3. |
-
-**Why BoxingGym is a negative control and not the testbed.** Its structure is fixed, hardcoded
-and textbook-nameable in all ten environments; only 3–6 continuous parameters are redrawn per
-instance, from narrow priors centred on published fitted values, and with `include_prior=true`
-the domain is named outright in the prompt. The harness already ships the prior-only ablation
-(`Error@0`), and it settles the question: **six of thirteen goals get *worse* with ten
-experiments**, three more move by ≤0.04σ. That is not a window in which a ceiling crossing can
-be demonstrated — but it is a clean demonstration of prior substitution saturating a measurement,
-which is worth publishing as a control.
-
-## Why this angle
-
-Everything in the RSI literature is measured on SWE-bench, Polyglot, AppWorld, GAIA,
-WebWalkerQA, LiveCodeBench — static distributions, contamination risk, large engineering slack.
-The defensible position is not the mechanism, it is the **measurement**: a composite ceiling in
-an environment where the knowledge is absent by construction, which nobody has built.
-
-## Layout
-
-```
-docs/         thesis, field map, program, open questions, revision log
-research/     paper notes; PDFs gitignored
-harness/      scaffold + attested-context implementation
-experiments/  run configs and results
-```
+Write-up: **[docs/NOTE-off-target-effects.md](docs/NOTE-off-target-effects.md)**.
+Limitations there are load-bearing and worth reading before citing anything.
 
 ## Status
 
 | | |
 |---|---|
-| Phase | literature complete, program revised, nothing built |
-| Base | fork [`metauto-ai/HGM`](https://github.com/metauto-ai/HGM) — Apache-2.0, already implements clade metaproductivity, which C4 extends |
-| Blocking | Q2 (are per-entry effect sizes model-conditional?) — cheap, needs no infrastructure, decides whether C3 is a mechanism |
-| Deferred | Q3 (compute for C3/C4 measurement) |
+| Result | measured on Qwen2.5-Coder-3B; replication on three further backbones **in progress** |
+| Data | 6,700+ committed generations, four backbones, two lineages, all greedy (exact, not sampled) |
+| Instrument | v3, working, with a known ceiling — see [INSTRUMENT-V3.md](experiments/q2_model_conditionality/INSTRUMENT-V3.md) |
+| Not claimed | how much performance independent gating costs in practice. A pre-registered coverage gate failed 1/12 against a threshold of 3, so the experiment that would price it is underpowered and was not run. |
 
-## Reading
+## Layout
 
-Start with [docs/LITERATURE.md](docs/LITERATURE.md) — the lineage, the results that bound the
-design, and the claim map. Reading order at the bottom.
+```
+docs/
+  NOTE-off-target-effects.md   the result
+  PAPER-PLAN.md                fuller plan; its headline experiment is gated out
+  REVISIONS.md                 what was wrong and what replaced it
+  LITERATURE.md                field map through arXiv 2608
+  PROGRAM.md                   superseded four-claim programme, kept for the record
+experiments/q2_model_conditionality/
+  RESULTS.md                   four-backbone entry-value measurements
+  INSTRUMENT-V3.md             instrument design, three rebuilds, and what still fails
+  results/                     raw generations for every condition
+```
+
+## History
+
+This began as a four-claim programme on scaffold-level recursive self-improvement. Occupancy
+sweeps falsified or found published work occupying all of it — the composite-ceiling claim,
+most of the intra-run claim, the strong form of the attestation claim, half the curation
+claim, and a later big-model-teaches-small pivot. [REVISIONS.md](docs/REVISIONS.md) records
+each one and what killed it, including a factual error of ours that was briefly live here.
+
+The durable output turned out to be the measurement apparatus and the data, not the original
+claims. That is why the repo is organised around a result rather than a plan.
+
+## Reading order
+
+1. [docs/NOTE-off-target-effects.md](docs/NOTE-off-target-effects.md) — the result and its limits
+2. [experiments/.../RESULTS.md](experiments/q2_model_conditionality/RESULTS.md) — entry value across four backbones: it tracks neither scale, generation, nor lineage
+3. [experiments/.../INSTRUMENT-V3.md](experiments/q2_model_conditionality/INSTRUMENT-V3.md) — why three instrument rebuilds, and what the current one still cannot express
+4. [docs/LITERATURE.md](docs/LITERATURE.md) — field map, if you want the surrounding work
+
+## Reproduce
+
+```bash
+cd experiments/q2_model_conditionality
+python run_loo.py --model <path> --tag v3-<name> --limit 50 --batch 13 --max-new 160
+python analyze.py --stores mixed v3-<name>
+```
+
+Greedy decoding throughout, so every difference is exact rather than a sample estimate. Raw
+generations for every condition are committed under `results/`.
 
 ---
 
@@ -111,13 +99,13 @@ the calls about what to pursue are the maintainer's. The prose and the literatur
 Saying so plainly seems better than letting you work it out from the em-dashes. It is also
 load-bearing: an earlier revision of this file asserted that Model Discovery Agent was
 state-of-the-art on BoxingGym. It is not, and never touched that benchmark. The error came from
-an unverified search summary. `docs/REVISIONS.md` logs it. Treat unsourced claims here as
-provisional and check the arXiv IDs.
+an unverified search summary. [REVISIONS.md](docs/REVISIONS.md) logs it. Treat unsourced claims
+here as provisional and check the arXiv IDs.
 
 **If you'd like to rewrite any of it in your own voice, please do — that would be genuinely
 welcome.** A PR or an issue is plenty; no need to ask first. The parts most worth a human pass
-are the thesis framing above and the claim map in `docs/LITERATURE.md`, where the judgement
-calls are load-bearing and deserve someone willing to argue with them.
+are the result framing above and the limitations in the note, where the judgement calls are
+load-bearing and deserve someone willing to argue with them.
 
 ## License
 
