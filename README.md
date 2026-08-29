@@ -1,8 +1,11 @@
 # jetspace-scaffold-rsi
 
-Measurement work on **inference-time context for LLM agents**: how much a learned-context
-entry is actually worth, and whether that can be established the way current systems
-establish it.
+Does the way self-evolving agents decide **what context to keep** accumulate error across
+generations? An entry's value is a property of the store rather than the entry, and these
+systems evaluate entries one at a time — so the selection error is made every generation, and
+should compound silently.
+
+Target: [docs/PAPER-PLAN.md](docs/PAPER-PLAN.md). Measured so far: the mechanism below.
 
 Opened 2026-08-27.
 
@@ -42,7 +45,7 @@ Limitations there are load-bearing and worth reading before citing anything.
 | Result | measured on Qwen2.5-Coder-3B; replication on three further backbones **in progress** |
 | Data | 6,700+ committed generations, four backbones, two lineages, all greedy (exact, not sampled) |
 | Instrument | v3, working, with a known ceiling — see [INSTRUMENT-V3.md](experiments/q2_model_conditionality/INSTRUMENT-V3.md) |
-| Not claimed | how much performance independent gating costs in practice. A pre-registered coverage gate failed 1/12 against a threshold of 3, so the experiment that would price it is underpowered and was not run. |
+| Not claimed | how much performance independent gating costs, or whether that cost compounds across generations. A pre-registered coverage gate failed 1/12 against a threshold of 3, so the experiments that would measure both are underpowered until the instrument is rebuilt. |
 
 ## Layout
 
