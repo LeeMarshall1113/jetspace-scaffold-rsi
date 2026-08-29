@@ -110,6 +110,16 @@ welcome.** A PR or an issue is plenty; no need to ask first. The parts most wort
 are the result framing above and the limitations in the note, where the judgement calls are
 load-bearing and deserve someone willing to argue with them.
 
+## A note on benchmark efficacy
+
+The instrument used here measures entry value as accuracy delta against a zero-context baseline — the model's performance with no context store at all. That baseline is load-bearing, and it has a known interpretability problem: a zero-context score of 0.02 on state (as observed) tells you the field is hard without hints, but it does not tell you whether the effects measured above it are large or small relative to what a well-designed store could achieve. The ceiling is unknown, so effect sizes are difficult to interpret in absolute terms.
+
+There is also a subtler concern. The zero baseline conflates two things: task difficulty and model prior. A field that a model happens to guess well from pretraining will show a low zero-context score and compressed headroom, making context effects look small regardless of their true magnitude. A field the model has no prior on will show the opposite. This makes cross-field comparisons within the same instrument unreliable as a measure of context sensitivity per se.
+
+A more interpretable benchmark might anchor against something with historical precedent rather than zero — for instance, a frozen store from generation 0 (measuring drift from a known starting point), a hand-curated oracle store (measuring how close self-evolved stores get to a human-constructed ceiling), or a random-entry baseline matched for store size (measuring whether the selection process beats chance). Each of these has been used in adjacent retrieval and continual-learning literature and would make the effect sizes here easier to situate. None requires changing the experimental apparatus, only the comparison condition.
+
+This is noted here rather than in the result write-up because it bears on how to read the numbers rather than on whether they are correct. The off-target effect is real regardless of which baseline you prefer. The question of how large it is — and whether it is large enough to matter for deployed systems — depends on a comparison condition this instrument does not yet provide.
+
 ## License
 
 [MIT](LICENSE). Contributions are accepted under the same terms.
