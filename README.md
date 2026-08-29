@@ -7,9 +7,14 @@ Opened 2026-08-27. Field map current through arXiv 2608.
 
 > **Status (2026-08-28).** The original four-claim program is superseded. Occupancy sweeps
 > falsified or found published work occupying C1, most of C2, C3's strong form, half of C4, and
-> a later big-model-teaches-small pivot. What survived is a single short measurement paper —
-> see `docs/PAPER-PLAN.md`. `docs/REVISIONS.md` records what died and why. The durable assets
-> are the Q2 results and the measurement instrument, not the original claims.
+> a later big-model-teaches-small pivot. `docs/REVISIONS.md` records what died and why.
+>
+> What survived is one short methodological note — **[docs/NOTE-off-target-effects.md](docs/NOTE-off-target-effects.md)**:
+> context entries change model accuracy on fields they never mention (+0.72 and −0.48 measured),
+> so validating entries independently — as SkillGen, SkillOpt and strong-to-weak harness
+> construction all do — keeps entries that are harmful in situ and underprices entries that are
+> valuable in situ. `docs/PAPER-PLAN.md` holds the fuller plan whose headline experiment was
+> gated out for lack of dynamic range.
 
 ---
 
