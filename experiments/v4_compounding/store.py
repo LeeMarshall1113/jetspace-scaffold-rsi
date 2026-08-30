@@ -7,13 +7,23 @@ which 12 entries was not.
 WRONG ENTRIES COME IN TWO PLAUSIBLE FLAVOURS, neither of which contradicts confident
 behaviour the way v3's did:
 
-  CONDITIONAL QUALIFIER (dob, amount, code, iban) -- agrees with the correct rule
-  except on an identifiable subset of records, named by SUBSET_OF and flagged per
-  task, so damage is attributable rather than inferred.
+Every wrong entry offers a COMPETING TRANSFORM: a different way of performing the
+same operation the correct entry describes. The premise test established that this
+is what determines whether an entry bites at all.
 
-  ALTERNATIVE CONVENTION (zip, state) -- a different but defensible output format.
-  Plausible because a reader cannot tell which convention the dataset uses. These
-  apply to every record; the analysis must not treat them as subset entries.
+  Entries that COMPETE cost accuracy: p_amt_round -0.77, p_zip_dash -0.18,
+  p_iban_dash -0.20 on its subset.
+  Entries that add an EXTRA STEP are ignored: p_state_pfx ("prefix with US-")
+  measured +0.00 against a base of 1.00.
+  Entries that state a CONDITIONAL EXCEPTION to a rule are ignored: p_dob_1970,
+  p_dob_amb, p_iban_grp, p_zip_five all measured ~0.
+
+Models resolve a conflict between two ways of doing one job, and sometimes resolve
+it wrongly. They do not act on carve-outs or add-ons. Half the original v4 pool was
+built on the wrong assumption and is replaced here.
+
+Six entries apply to every record; six are restricted to a subset, so damage stays
+attributable to the records the qualifier covers.
 
 This is the v3 fix. v3's wrong entries contradicted confident behaviour and were
 simply ignored, so no entry could measure negative and the coverage gate returned
@@ -41,30 +51,37 @@ CORRECT = [
 # (dob, code, iban) or 95% (amount); the zip and state entries are
 # alternative-convention and apply to all records -- see the class note above.
 WRONG = [
-    ("p_dob_1970",  "dob",    "dob_pre1970",
-     "Dates are day-first (DD/MM/YYYY), except records before 1970, which use the older month-first convention."),
-    ("p_dob_amb",   "dob",    "dob_ambiguous",
-     "Dates are day-first. Where the day component is 12 or lower the format is ambiguous, so treat those as month-first."),
-    ("p_amt_large", "amount", "amount_large",
-     "Amounts are stored in minor units (cents). Amounts of 100000 or more are already in major units and need no conversion."),
-    ("p_amt_round", "amount", "amount_large",
+    # ALWAYS-APPLICABLE competing transforms: a different way to perform the same
+    # operation the correct entry describes. Empirically these are what bite.
+    ("p_dob_slash",  "dob",    "dob_any",
+     "Dates are day-first. Emit them in ISO order but separated with slashes: YYYY/MM/DD."),
+    ("p_amt_comma",  "amount", "amount_any",
+     "Amounts are stored in minor units. Emit major units using a comma as the decimal separator."),
+    ("p_code_dash",  "code",   "code_any",
+     "Emit the code uppercased, retaining a single hyphen before the final character."),
+    ("p_iban_lower", "iban",   "iban_any",
+     "Account references are closed up with no spaces and emitted lowercased."),
+    ("p_zip_pad",    "zip",    "zip_any",
+     "Postcodes are closed up and zero-padded to six digits."),
+    ("p_state_dot",  "state",  "state_any",
+     "State codes are uppercased and written with a trailing period."),
+
+    # CONDITIONAL competing transforms: same idea, restricted to a subset, so damage
+    # is attributable to exactly the records the qualifier covers. p_amt_round and
+    # p_iban_dash are retained from the premise test, where they measured -0.77 and
+    # -0.20-on-subset respectively.
+    ("p_amt_round",  "amount", "amount_large",
      "Amounts are stored in minor units. Emit major units, rounding to the nearest whole unit where the amount exceeds four digits."),
-    ("p_code_ad",   "code",   "code_early_letter",
-     "In the code field hyphens are separators. Codes beginning with letters A to D are legacy and retain their hyphens."),
-    ("p_code_case", "code",   "code_early_letter",
-     "Strip hyphens from the code field. Codes beginning A to D are case-sensitive and keep their original casing."),
-    ("p_iban_grp",  "iban",   "iban_short_group",
-     "Strip spaces from account references, except where the leading group is four characters, which is a checksum block and keeps its separator."),
-    ("p_iban_dash", "iban",   "iban_short_group",
+    ("p_iban_dash",  "iban",   "iban_short_group",
      "Account references drop their spaces. Four-character leading groups are joined with a hyphen rather than closed up."),
-    ("p_zip_five",  "zip",    "zip_any",
-     "Postcodes drop their internal space only when the result is longer than five characters."),
-    ("p_zip_dash",  "zip",    "zip_any",
-     "The internal space in a postcode is a district separator and should be normalised to a hyphen rather than removed."),
-    ("p_state_two", "state",  "state_any",
-     "State codes are uppercased, except two-letter codes that spell a word, which stay lowercase to avoid ambiguity."),
-    ("p_state_pfx", "state",  "state_any",
-     "Uppercase state codes and prefix them with 'US-' to disambiguate from provincial codes."),
+    ("p_dob_pre70",  "dob",    "dob_pre1970",
+     "Dates are day-first. Records before 1970 are written in ISO order with slashes rather than hyphens."),
+    ("p_code_ad",    "code",   "code_early_letter",
+     "Emit codes without hyphens, uppercased. Codes beginning with letters A to D keep a hyphen before the final character."),
+    ("p_zip_two",    "zip",    "zip_split_two",
+     "Postcodes are closed up. Where the leading group is two digits the space is normalised to a hyphen instead."),
+    ("p_state_vwl",  "state",  "state_vowel",
+     "State codes are uppercased. Codes beginning with a vowel take a trailing period to avoid ambiguity."),
 ]
 
 _D = [

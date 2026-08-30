@@ -15,9 +15,13 @@ ROCBLAS_USE_HIPBLASLT=0, capped memory fraction, incremental JSONL writes.
 Greedy decoding, so every difference between conditions is exact.
 """
 
-import argparse, json, os, pathlib, sys, time
+import argparse, json, os, pathlib, sys, threading, time
 
 os.environ.setdefault("ROCBLAS_USE_HIPBLASLT", "0")
+# 8 physical / 16 logical cores are shared with other agents on this box; one
+# session starving the machine with 13 of 16 threads is a documented incident.
+for _v in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
+    os.environ.setdefault(_v, "3")
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -81,6 +85,8 @@ def main():
     ap.add_argument("--pad-to", type=int, default=18,
                     help="entry count every store is padded to; keeps length constant")
     ap.add_argument("--conditions", default="smoke", choices=["smoke"])
+    ap.add_argument("--batch-timeout", type=float, default=600.0,
+                    help="hard-exit if one batch exceeds this many seconds")
     args = ap.parse_args()
 
     outdir = HERE / "results"; outdir.mkdir(exist_ok=True)
@@ -104,6 +110,8 @@ def main():
     torch.backends.cuda.enable_mem_efficient_sdp(False)
     torch.backends.cuda.enable_math_sdp(True)
 
+    torch.set_num_threads(3)
+
     print(f"[load] {args.model}")
     tok = AutoTokenizer.from_pretrained(args.model)
     tok.padding_side = "left"
@@ -121,11 +129,34 @@ def main():
           f"all padded to {args.pad_to} entries)")
 
     preempt = os.environ.get("BROKER_PREEMPT_FILE")
+
+    # WATCHDOG. The preempt flag is only read at batch boundaries, so a job that
+    # wedges INSIDE a batch never sees it -- a cooperative design that stops being
+    # cooperative exactly when it matters. That happened: a run whose lease expired
+    # spent 21.7 CPU-hours inside one generate() call after losing its GPU context
+    # and falling back to host compute, holding 18 GB and producing nothing.
+    #
+    # Every completed generation is already flushed, so a hard exit costs at most
+    # one batch and the run resumes in place. os._exit is deliberate: a wedged
+    # ROCm call will not unwind, so raising in a thread would not free anything.
+    deadline = [float("inf")]
+
+    def _watchdog():
+        while True:
+            time.sleep(5)
+            if time.time() > deadline[0]:
+                print(f"[watchdog] batch exceeded {args.batch_timeout:.0f}s -- "
+                      f"hard exit; rerun to resume", flush=True)
+                os._exit(75)
+
+    threading.Thread(target=_watchdog, daemon=True).start()
+
     t0, written = time.time(), 0
     with open(outpath, "a", encoding="utf-8") as fout:
         for b0 in range(0, len(work), args.batch):
             if preempt and os.path.exists(preempt):
                 print(f"[preempt] yielding at {written}/{len(work)}", flush=True); break
+            deadline[0] = time.time() + args.batch_timeout
             chunk = work[b0:b0 + args.batch]
             prompts = [build_prompt(tok, ids, t["record"], args.pad_to)
                        for _, ids, t in chunk]
@@ -142,6 +173,7 @@ def main():
                     "raw": text[:600]}) + "\n")
                 written += 1
             fout.flush()
+            deadline[0] = float("inf")          # clear between batches
             el = time.time() - t0
             print(f"  {written}/{len(work)}  {written/el:.2f} gen/s  "
                   f"eta {(len(work)-written)/(written/el)/60:.1f} min", flush=True)

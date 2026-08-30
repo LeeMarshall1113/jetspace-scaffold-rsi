@@ -55,7 +55,8 @@ def make_tasks(n: int = 60, seed: int = 20260829):
         iban_raw = f"{grp} {rng.randint(1000, 9999)} {rng.randint(1000, 9999)}"
 
         z = f"{rng.randint(10000, 99999)}"
-        zip_raw = f"{z[:3]} {z[3:]}"
+        zip_split = 3 if rng.random() < 0.5 else 2      # real subset for zip qualifiers
+        zip_raw = f"{z[:zip_split]} {z[zip_split:]}"
 
         st = rng.choice(STATES)
 
@@ -96,13 +97,16 @@ def make_tasks(n: int = 60, seed: int = 20260829):
             "amount_large": big,
             "code_early_letter": early_letter,
             "iban_short_group": len(grp) == 4,
-            # zip and state wrong-entries are ALTERNATIVE CONVENTIONS rather
-            # than conditional qualifiers: plausible because a reader cannot
-            # tell which convention this dataset uses, not because they are
-            # right most of the time. Flagged as always-applicable so the
-            # analysis does not mistake them for subset entries.
+            "zip_split_two": zip_split == 2,
+            "state_vowel": st[0] in "aeiou",
+            # Always-applicable competing transforms are flagged so the analysis
+            # does not mistake them for subset entries.
             "zip_any": True,
             "state_any": True,
+            "dob_any": True,
+            "amount_any": True,
+            "code_any": True,
+            "iban_any": True,
         }
         tasks.append({"id": i, "record": record, "expected": expected,
                       "subsets": subsets})
