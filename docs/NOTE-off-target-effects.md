@@ -62,15 +62,17 @@ Repeating the measurement on further backbones separates the two cases sharply:
 |---|---|---|
 | Qwen2.5-Coder-3B | **+0.72** | **−0.48** |
 | Qwen3.5-4B | −0.14 | **−0.68** |
+| Qwen2.5-Coder-7B | −0.10 | **−0.70** |
 | Gemma-4-E2B | 0.00 *(floored, uninformative)* | 0.00 *(floored)* |
-| Qwen2.5-Coder-7B | pending | pending |
 
-**`dob` replicates** — same direction, comparable magnitude, across two model generations.
-Entries that never mention the date field drive its accuracy to zero on both.
+**`dob` replicates on all three informative backbones** — −0.48, −0.68, −0.70, spanning two
+model generations and a 2.3× size range. In every case the other-field entries drive `dob`
+accuracy to **exactly 0.00**: entries that never mention the date field destroy it completely.
 
-**`state` does not.** +0.72 on the 3B and −0.14 on the 4B. It is model-specific, and it was
-the larger and more quotable of the two numbers. Gemma sits at 0.00 on both fields, which is
-a floor rather than a clean null — uninformative, not contradicting.
+**`state` does not replicate, and the 3B is the outlier.** +0.72 on the 3B against −0.14 and
+−0.10 on the other two. It was the larger and more quotable of the two original numbers and
+it does not survive. Gemma sits at 0.00 on both fields — a floor, so uninformative rather
+than contradicting.
 
 So the phenomenon survives a change of model generation on one field and not the other. The
 honest reading is that off-target effects are real and can be large, but their sign and
