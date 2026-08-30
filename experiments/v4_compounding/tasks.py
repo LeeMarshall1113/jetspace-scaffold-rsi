@@ -29,7 +29,7 @@ can be attributed to exactly the records its qualifier misdescribes.
 
 import random
 
-FIELDS = ["iban", "zip", "state", "dob", "amount", "code"]
+FIELDS = ["iban", "zip", "phone", "ref", "amount", "code"]
 
 FIRST = ["Adaeze", "Tomasz", "Yuki", "Priya", "Kwame", "Ingrid", "Rafael", "Mei",
          "Oleksiy", "Fatima", "Bjorn", "Nadia", "Hiroshi", "Amara", "Dmitri", "Leila"]
@@ -58,7 +58,17 @@ def make_tasks(n: int = 60, seed: int = 20260829):
         zip_split = 3 if rng.random() < 0.5 else 2      # real subset for zip qualifiers
         zip_raw = f"{z[:zip_split]} {z[zip_split:]}"
 
-        st = rng.choice(STATES)
+        cc = rng.choice(["44", "33", "49", "31"])
+        area = rng.randint(10, 99)
+        sub_n = rng.randint(1000000, 9999999)
+        phone_raw = f"+{cc} (0){area} {sub_n}"
+
+        r1, r2 = rng.choice("abcdefgh"), rng.choice("jklmnpqr")
+        r3 = rng.randint(10, 99)
+        ref_raw = f"{r1}{r2}/{r3}/{rng.choice('xyzw')}"
+        ref_core = ref_raw.replace("/", "")
+        long_area = area >= 50                      # subset for phone qualifiers
+        ref_early = r1 in "abcd"                    # subset for ref qualifiers
 
         # Half the dates are ambiguous (day <= 12); a quarter predate 1970.
         ambiguous = i % 2 == 0
@@ -77,33 +87,33 @@ def make_tasks(n: int = 60, seed: int = 20260829):
         record = {
             "iban": iban_raw,
             "zip": zip_raw,
-            "state": st,
-            "dob": f"{day:02d}/{month:02d}/{year}",
+            "phone": phone_raw,
+            "ref": ref_raw,
             "amount": str(cents),
             "code": code_hyph,
         }
         expected = {
             "iban": iban_raw.replace(" ", ""),
             "zip": zip_raw.replace(" ", ""),
-            "state": st.upper(),
-            "dob": f"{year}-{month:02d}-{day:02d}",
+            "phone": f"+{cc}{area}{sub_n}",              # strip prefix and spacing
+            "ref": ref_core.upper(),                     # strip slashes, uppercase
             "amount": f"{cents // 100}.{cents % 100:02d}",
             "code": core.upper(),
         }
         # Which wrong-entry qualifiers misdescribe this record.
         subsets = {
-            "dob_pre1970": year < 1970,
-            "dob_ambiguous": ambiguous,
+            "phone_long_area": long_area,
+            "ref_early_letter": ref_early,
             "amount_large": big,
             "code_early_letter": early_letter,
             "iban_short_group": len(grp) == 4,
             "zip_split_two": zip_split == 2,
-            "state_vowel": st[0] in "aeiou",
+
             # Always-applicable competing transforms are flagged so the analysis
             # does not mistake them for subset entries.
             "zip_any": True,
-            "state_any": True,
-            "dob_any": True,
+            "phone_any": True,
+            "ref_any": True,
             "amount_any": True,
             "code_any": True,
             "iban_any": True,

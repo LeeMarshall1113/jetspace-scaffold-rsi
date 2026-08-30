@@ -40,8 +40,8 @@ six distractors did.
 CORRECT = [
     ("c_iban",   "Account references are stored in space-separated groups. Emit them with no spaces."),
     ("c_zip",    "Postcodes carry a stray internal space. Emit them with no spaces."),
-    ("c_state",  "State codes are two-letter abbreviations. Emit them uppercased."),
-    ("c_dob",    "Dates in this source are day-first (DD/MM/YYYY). Emit ISO YYYY-MM-DD."),
+    ("c_phone",  "Phone numbers carry a national trunk prefix in parentheses. Drop it and all spacing, keeping the leading +."),
+    ("c_ref",    "In the ref field the slashes are separators, not data. Emit without them, uppercased."),
     ("c_amount", "The amount field is stored in minor units (cents). Emit major units with two decimals."),
     ("c_code",   "In the code field hyphens are separators, not data. Emit without them, uppercased."),
 ]
@@ -51,37 +51,37 @@ CORRECT = [
 # (dob, code, iban) or 95% (amount); the zip and state entries are
 # alternative-convention and apply to all records -- see the class note above.
 WRONG = [
-    # ALWAYS-APPLICABLE competing transforms: a different way to perform the same
-    # operation the correct entry describes. Empirically these are what bite.
-    ("p_dob_slash",  "dob",    "dob_any",
-     "Dates are day-first. Emit them in ISO order but separated with slashes: YYYY/MM/DD."),
-    ("p_amt_comma",  "amount", "amount_any",
-     "Amounts are stored in minor units. Emit major units using a comma as the decimal separator."),
-    ("p_code_dash",  "code",   "code_any",
-     "Emit the code uppercased, retaining a single hyphen before the final character."),
-    ("p_iban_lower", "iban",   "iban_any",
+    # ALWAYS-APPLICABLE competing transforms. Every one specifies a dimension of the
+    # output the correct entry leaves open -- case, separator, padding, precision --
+    # rather than appending content or stating an exception. That distinction is what
+    # the premise tests established determines whether an entry bites at all.
+    ("p_iban_lower", "iban",  "iban_any",
      "Account references are closed up with no spaces and emitted lowercased."),
-    ("p_zip_pad",    "zip",    "zip_any",
+    ("p_zip_pad",    "zip",   "zip_any",
      "Postcodes are closed up and zero-padded to six digits."),
-    ("p_state_dot",  "state",  "state_any",
-     "State codes are uppercased and written with a trailing period."),
+    ("p_phone_dash", "phone", "phone_any",
+     "Phone numbers drop the parenthesised trunk prefix, with the remaining groups joined by hyphens rather than closed up."),
+    ("p_ref_lower",  "ref",   "ref_any",
+     "The ref field drops its slashes and is emitted lowercased."),
+    ("p_amt_comma",  "amount","amount_any",
+     "Amounts are stored in minor units. Emit major units using a comma as the decimal separator."),
+    ("p_code_dash",  "code",  "code_any",
+     "Emit the code uppercased, retaining a single hyphen before the final character."),
 
-    # CONDITIONAL competing transforms: same idea, restricted to a subset, so damage
-    # is attributable to exactly the records the qualifier covers. p_amt_round and
-    # p_iban_dash are retained from the premise test, where they measured -0.77 and
-    # -0.20-on-subset respectively.
-    ("p_amt_round",  "amount", "amount_large",
+    # SUBSET-RESTRICTED competing transforms. Only two of six registered last round,
+    # so attribution rests on thin evidence and is not leaned on in section 6.
+    ("p_amt_round",  "amount","amount_large",
      "Amounts are stored in minor units. Emit major units, rounding to the nearest whole unit where the amount exceeds four digits."),
-    ("p_iban_dash",  "iban",   "iban_short_group",
+    ("p_iban_dash",  "iban",  "iban_short_group",
      "Account references drop their spaces. Four-character leading groups are joined with a hyphen rather than closed up."),
-    ("p_dob_pre70",  "dob",    "dob_pre1970",
-     "Dates are day-first. Records before 1970 are written in ISO order with slashes rather than hyphens."),
-    ("p_code_ad",    "code",   "code_early_letter",
+    ("p_code_ad",    "code",  "code_early_letter",
      "Emit codes without hyphens, uppercased. Codes beginning with letters A to D keep a hyphen before the final character."),
-    ("p_zip_two",    "zip",    "zip_split_two",
+    ("p_zip_two",    "zip",   "zip_split_two",
      "Postcodes are closed up. Where the leading group is two digits the space is normalised to a hyphen instead."),
-    ("p_state_vwl",  "state",  "state_vowel",
-     "State codes are uppercased. Codes beginning with a vowel take a trailing period to avoid ambiguity."),
+    ("p_phone_area", "phone", "phone_long_area",
+     "Phone numbers close up entirely. Area codes of 50 or above retain a hyphen after the country code."),
+    ("p_ref_early",  "ref",   "ref_early_letter",
+     "Emit refs without slashes, uppercased. Refs beginning with letters A to D keep a slash before the final character."),
 ]
 
 _D = [
@@ -127,6 +127,18 @@ FILLER = [(f"f{i:02d}", t) for i, t in enumerate([
     "Timezone metadata travels alongside the payload, not inside it.",
     "Rate limits apply per source system, not per batch.",
     "The schema registry is the authority for field types.",
+    "Export jobs acquire an advisory lock before writing the staging table.",
+    "Row counts are reconciled against the source before the batch is marked done.",
+    "The consumer contract is versioned independently of the source schema.",
+    "Nulls and empty strings are distinct in the source and stay distinct here.",
+    "Batch identifiers are monotonic but not contiguous.",
+    "Transform errors are counted per field, not per record.",
+    "The pipeline runs in the same region as the source database.",
+    "Secrets are injected at runtime and never appear in a manifest.",
+    "Column comments in the source are not propagated downstream.",
+    "The dry-run mode writes to a shadow table with the same schema.",
+    "Watermarks are stored per source, not per destination.",
+    "Late-arriving records are appended rather than merged.",
 ])]
 
 TEXT = dict(CORRECT + [(k, t) for k, _, _, t in WRONG] + DISTRACTOR + FILLER)
