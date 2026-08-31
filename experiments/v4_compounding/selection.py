@@ -17,6 +17,12 @@ evaluates on demand rather than precomputing a condition list. Every evaluation 
 cached to disk by frozenset, because greedy and oracle overlap heavily and a rerun
 should cost nothing it has already paid for.
 
+NAMING: this file is `selection.py`, not `select.py`. `select` is a stdlib module,
+and a file shadowing it here broke the socket/email/http import chain for every
+process whose sys.path included this directory -- which silently killed two queued
+GPU jobs before the cause was found. Do not name modules in an experiment directory
+after stdlib modules.
+
 Every store is BACKGROUND + selected candidates, padded to a fixed entry count. The
 padding is not optional: comparing stores of different length would confound content
 with context length (PR #1).
