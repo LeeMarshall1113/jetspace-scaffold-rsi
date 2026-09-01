@@ -60,7 +60,9 @@ def run_generation_loop(ev, order, batch, generations):
                 grdy.append(c)
 
         # ORACLE over everything offered so far.
-        orc, orc_v, _ = oracle(ev, samples=0, seeds=(grdy, indep, offered))
+        # Oracle chooses only from what has been offered by this generation.
+        orc, orc_v, _ = oracle(ev, samples=0, seeds=(grdy, indep, offered),
+                               pool=offered)
 
         a_i, a_g = ev(indep)["_total"], ev(grdy)["_total"]
         rows.append({

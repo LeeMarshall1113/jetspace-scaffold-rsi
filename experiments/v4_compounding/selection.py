@@ -185,7 +185,7 @@ def greedy(ev, rounds):
     return cur, calls
 
 
-def oracle(ev, samples, seed=0, seeds=()):
+def oracle(ev, samples, seed=0, seeds=(), pool=None):
     """Best subset found by MULTI-START hill-climbing. The ceiling.
 
     Single-start from the best random sample was not a ceiling at all: with 12 of 18
@@ -205,8 +205,8 @@ def oracle(ev, samples, seed=0, seeds=()):
 
     best_rand, best_rand_v = [], -1.0
     for _ in range(samples):
-        k = rng.randint(1, len(CANDIDATES))
-        s = rng.sample(CANDIDATES, k)
+        k = rng.randint(1, len(pool))
+        s = rng.sample(pool, k)
         v = ev(s)["_total"]; calls += 1
         if v > best_rand_v:
             best_rand, best_rand_v = s, v
@@ -220,7 +220,7 @@ def oracle(ev, samples, seed=0, seeds=()):
         improved = True
         while improved:
             improved = False
-            for c in CANDIDATES:
+            for c in pool:
                 cand = [x for x in cur if x != c] if c in cur else cur + [c]
                 v = ev(cand)["_total"]; calls += 1
                 if v > cur_v + 1e-9:

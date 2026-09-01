@@ -1,0 +1,719 @@
+{
+  "orderings": [
+    {
+      "seed": 0,
+      "order": [
+        "c_amount",
+        "p_ref_lower",
+        "c_iban",
+        "p_zip_two",
+        "p_amt_comma",
+        "p_ref_early",
+        "p_code_ad",
+        "p_phone_area",
+        "p_code_dash",
+        "p_iban_lower",
+        "p_phone_dash",
+        "c_phone",
+        "p_zip_pad",
+        "c_zip",
+        "c_code",
+        "p_amt_round",
+        "c_ref",
+        "p_iban_dash"
+      ],
+      "rows": [
+        {
+          "generation": 1,
+          "offered": 3,
+          "independent_acc": 0.49444444444444446,
+          "greedy_acc": 0.5,
+          "oracle_acc": 0.9722222222222222,
+          "independent_gap": -0.47777777777777775,
+          "greedy_gap": -0.4722222222222222,
+          "independent_store": [
+            "c_amount"
+          ],
+          "greedy_store": [
+            "c_amount",
+            "p_ref_lower"
+          ],
+          "oracle_store": [
+            "c_amount",
+            "c_iban",
+            "c_phone",
+            "c_ref",
+            "c_code",
+            "p_code_ad",
+            "p_phone_area",
+            "p_code_dash"
+          ],
+          "independent_wrong_admitted": 0,
+          "greedy_wrong_admitted": 1
+        },
+        {
+          "generation": 2,
+          "offered": 6,
+          "independent_acc": 0.49722222222222223,
+          "greedy_acc": 0.6,
+          "oracle_acc": 0.9666666666666667,
+          "independent_gap": -0.46944444444444444,
+          "greedy_gap": -0.3666666666666667,
+          "independent_store": [
+            "c_amount",
+            "p_ref_early"
+          ],
+          "greedy_store": [
+            "c_amount",
+            "p_ref_lower",
+            "p_ref_early"
+          ],
+          "oracle_store": [
+            "c_amount",
+            "p_amt_comma",
+            "p_ref_early",
+            "c_phone",
+            "c_ref",
+            "c_code",
+            "p_iban_dash",
+            "p_code_ad",
+            "p_phone_area"
+          ],
+          "independent_wrong_admitted": 1,
+          "greedy_wrong_admitted": 2
+        },
+        {
+          "generation": 3,
+          "offered": 9,
+          "independent_acc": 0.5638888888888889,
+          "greedy_acc": 0.9277777777777777,
+          "oracle_acc": 0.975,
+          "independent_gap": -0.4111111111111111,
+          "greedy_gap": -0.047222222222222276,
+          "independent_store": [
+            "c_amount",
+            "p_ref_early",
+            "p_code_ad"
+          ],
+          "greedy_store": [
+            "c_amount",
+            "p_ref_lower",
+            "p_ref_early",
+            "p_code_ad",
+            "p_phone_area"
+          ],
+          "oracle_store": [
+            "c_amount",
+            "p_ref_early",
+            "p_code_ad",
+            "c_iban",
+            "c_phone",
+            "c_ref",
+            "p_phone_dash",
+            "p_iban_dash",
+            "p_phone_area"
+          ],
+          "independent_wrong_admitted": 2,
+          "greedy_wrong_admitted": 4
+        },
+        {
+          "generation": 4,
+          "offered": 12,
+          "independent_acc": 0.7472222222222222,
+          "greedy_acc": 0.9527777777777778,
+          "oracle_acc": 0.975,
+          "independent_gap": -0.22777777777777775,
+          "greedy_gap": -0.022222222222222143,
+          "independent_store": [
+            "c_amount",
+            "p_ref_early",
+            "p_code_ad",
+            "p_phone_dash",
+            "c_phone"
+          ],
+          "greedy_store": [
+            "c_amount",
+            "p_ref_lower",
+            "p_ref_early",
+            "p_code_ad",
+            "p_phone_area",
+            "c_phone"
+          ],
+          "oracle_store": [
+            "c_amount",
+            "p_code_ad",
+            "c_phone",
+            "c_iban",
+            "c_ref",
+            "p_phone_area",
+            "p_phone_dash"
+          ],
+          "independent_wrong_admitted": 3,
+          "greedy_wrong_admitted": 4
+        },
+        {
+          "generation": 5,
+          "offered": 15,
+          "independent_acc": 0.8333333333333334,
+          "greedy_acc": 0.9527777777777778,
+          "oracle_acc": 0.975,
+          "independent_gap": -0.1416666666666666,
+          "greedy_gap": -0.022222222222222143,
+          "independent_store": [
+            "c_amount",
+            "p_ref_early",
+            "p_code_ad",
+            "p_phone_dash",
+            "c_phone",
+            "c_code"
+          ],
+          "greedy_store": [
+            "c_amount",
+            "p_ref_lower",
+            "p_ref_early",
+            "p_code_ad",
+            "p_phone_area",
+            "c_phone"
+          ],
+          "oracle_store": [
+            "c_amount",
+            "p_code_ad",
+            "c_phone",
+            "c_iban",
+            "c_ref",
+            "p_phone_area",
+            "p_phone_dash"
+          ],
+          "independent_wrong_admitted": 3,
+          "greedy_wrong_admitted": 4
+        },
+        {
+          "generation": 6,
+          "offered": 18,
+          "independent_acc": 0.8972222222222221,
+          "greedy_acc": 0.9611111111111111,
+          "oracle_acc": 0.975,
+          "independent_gap": -0.07777777777777783,
+          "greedy_gap": -0.01388888888888884,
+          "independent_store": [
+            "c_amount",
+            "p_ref_early",
+            "p_code_ad",
+            "p_phone_dash",
+            "c_phone",
+            "c_code",
+            "c_ref"
+          ],
+          "greedy_store": [
+            "c_amount",
+            "p_ref_lower",
+            "p_ref_early",
+            "p_code_ad",
+            "p_phone_area",
+            "c_phone",
+            "c_ref"
+          ],
+          "oracle_store": [
+            "c_amount",
+            "p_ref_early",
+            "p_code_ad",
+            "p_phone_dash",
+            "c_phone",
+            "c_ref",
+            "c_iban",
+            "p_iban_dash",
+            "p_phone_area"
+          ],
+          "independent_wrong_admitted": 3,
+          "greedy_wrong_admitted": 4
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "order": [
+        "p_ref_early",
+        "p_code_ad",
+        "p_code_dash",
+        "p_zip_pad",
+        "p_ref_lower",
+        "c_iban",
+        "c_amount",
+        "c_ref",
+        "p_amt_comma",
+        "c_code",
+        "p_iban_dash",
+        "p_zip_two",
+        "p_amt_round",
+        "p_phone_area",
+        "p_phone_dash",
+        "c_phone",
+        "p_iban_lower",
+        "c_zip"
+      ],
+      "rows": [
+        {
+          "generation": 1,
+          "offered": 3,
+          "independent_acc": 0.4277777777777778,
+          "greedy_acc": 0.4277777777777778,
+          "oracle_acc": 0.975,
+          "independent_gap": -0.5472222222222222,
+          "greedy_gap": -0.5472222222222222,
+          "independent_store": [
+            "p_ref_early",
+            "p_code_ad"
+          ],
+          "greedy_store": [
+            "p_ref_early",
+            "p_code_ad"
+          ],
+          "oracle_store": [
+            "p_ref_early",
+            "p_code_ad",
+            "c_iban",
+            "c_phone",
+            "c_ref",
+            "c_amount",
+            "p_phone_dash",
+            "p_iban_dash",
+            "p_phone_area"
+          ],
+          "independent_wrong_admitted": 2,
+          "greedy_wrong_admitted": 2
+        },
+        {
+          "generation": 2,
+          "offered": 6,
+          "independent_acc": 0.4277777777777778,
+          "greedy_acc": 0.5916666666666667,
+          "oracle_acc": 0.975,
+          "independent_gap": -0.5472222222222222,
+          "greedy_gap": -0.3833333333333333,
+          "independent_store": [
+            "p_ref_early",
+            "p_code_ad"
+          ],
+          "greedy_store": [
+            "p_ref_early",
+            "p_code_ad",
+            "p_ref_lower"
+          ],
+          "oracle_store": [
+            "p_ref_early",
+            "p_code_ad",
+            "c_iban",
+            "c_phone",
+            "c_ref",
+            "c_amount",
+            "p_phone_dash",
+            "p_iban_dash",
+            "p_phone_area"
+          ],
+          "independent_wrong_admitted": 2,
+          "greedy_wrong_admitted": 3
+        },
+        {
+          "generation": 3,
+          "offered": 9,
+          "independent_acc": 0.7277777777777779,
+          "greedy_acc": 0.7722222222222223,
+          "oracle_acc": 0.975,
+          "independent_gap": -0.24722222222222212,
+          "greedy_gap": -0.20277777777777772,
+          "independent_store": [
+            "p_ref_early",
+            "p_code_ad",
+            "c_amount",
+            "c_ref"
+          ],
+          "greedy_store": [
+            "p_ref_early",
+            "p_code_ad",
+            "p_ref_lower",
+            "c_amount",
+            "c_ref"
+          ],
+          "oracle_store": [
+            "p_code_ad",
+            "c_amount",
+            "c_ref",
+            "c_iban",
+            "c_phone",
+            "p_phone_area",
+            "p_phone_dash"
+          ],
+          "independent_wrong_admitted": 2,
+          "greedy_wrong_admitted": 3
+        },
+        {
+          "generation": 4,
+          "offered": 12,
+          "independent_acc": 0.6805555555555555,
+          "greedy_acc": 0.7805555555555556,
+          "oracle_acc": 0.9777777777777779,
+          "independent_gap": -0.2972222222222224,
+          "greedy_gap": -0.1972222222222223,
+          "independent_store": [
+            "p_ref_early",
+            "p_code_ad",
+            "c_amount",
+            "c_ref",
+            "c_code"
+          ],
+          "greedy_store": [
+            "p_ref_early",
+            "p_code_ad",
+            "p_ref_lower",
+            "c_amount",
+            "c_ref",
+            "p_iban_dash"
+          ],
+          "oracle_store": [
+            "p_code_ad",
+            "c_amount",
+            "c_ref",
+            "p_amt_comma",
+            "p_iban_dash",
+            "c_phone",
+            "p_phone_area"
+          ],
+          "independent_wrong_admitted": 2,
+          "greedy_wrong_admitted": 4
+        },
+        {
+          "generation": 5,
+          "offered": 15,
+          "independent_acc": 0.8444444444444444,
+          "greedy_acc": 0.9194444444444444,
+          "oracle_acc": 0.975,
+          "independent_gap": -0.13055555555555554,
+          "greedy_gap": -0.05555555555555558,
+          "independent_store": [
+            "p_ref_early",
+            "p_code_ad",
+            "c_amount",
+            "c_ref",
+            "c_code",
+            "p_phone_dash"
+          ],
+          "greedy_store": [
+            "p_ref_early",
+            "p_code_ad",
+            "p_ref_lower",
+            "c_amount",
+            "c_ref",
+            "p_iban_dash",
+            "p_amt_round",
+            "p_phone_area",
+            "p_phone_dash"
+          ],
+          "oracle_store": [
+            "p_ref_early",
+            "p_code_ad",
+            "c_amount",
+            "c_ref",
+            "p_phone_dash",
+            "c_iban",
+            "c_phone",
+            "p_iban_dash",
+            "p_phone_area"
+          ],
+          "independent_wrong_admitted": 3,
+          "greedy_wrong_admitted": 7
+        },
+        {
+          "generation": 6,
+          "offered": 18,
+          "independent_acc": 0.8972222222222221,
+          "greedy_acc": 0.9194444444444444,
+          "oracle_acc": 0.975,
+          "independent_gap": -0.07777777777777783,
+          "greedy_gap": -0.05555555555555558,
+          "independent_store": [
+            "p_ref_early",
+            "p_code_ad",
+            "c_amount",
+            "c_ref",
+            "c_code",
+            "p_phone_dash",
+            "c_phone"
+          ],
+          "greedy_store": [
+            "p_ref_early",
+            "p_code_ad",
+            "p_ref_lower",
+            "c_amount",
+            "c_ref",
+            "p_iban_dash",
+            "p_amt_round",
+            "p_phone_area",
+            "p_phone_dash"
+          ],
+          "oracle_store": [
+            "p_ref_early",
+            "p_code_ad",
+            "c_amount",
+            "c_ref",
+            "p_phone_dash",
+            "c_phone",
+            "c_iban",
+            "p_iban_dash",
+            "p_phone_area"
+          ],
+          "independent_wrong_admitted": 3,
+          "greedy_wrong_admitted": 7
+        }
+      ]
+    },
+    {
+      "seed": 2,
+      "order": [
+        "p_amt_comma",
+        "c_ref",
+        "c_code",
+        "p_code_dash",
+        "p_phone_dash",
+        "c_iban",
+        "p_amt_round",
+        "p_iban_lower",
+        "c_zip",
+        "p_ref_lower",
+        "p_ref_early",
+        "p_zip_two",
+        "c_amount",
+        "p_code_ad",
+        "c_phone",
+        "p_zip_pad",
+        "p_iban_dash",
+        "p_phone_area"
+      ],
+      "rows": [
+        {
+          "generation": 1,
+          "offered": 3,
+          "independent_acc": 0.6611111111111111,
+          "greedy_acc": 0.6611111111111111,
+          "oracle_acc": 0.9666666666666667,
+          "independent_gap": -0.3055555555555556,
+          "greedy_gap": -0.3055555555555556,
+          "independent_store": [
+            "c_ref",
+            "c_code"
+          ],
+          "greedy_store": [
+            "c_ref",
+            "c_code"
+          ],
+          "oracle_store": [
+            "c_ref",
+            "c_code",
+            "c_phone",
+            "c_amount"
+          ],
+          "independent_wrong_admitted": 0,
+          "greedy_wrong_admitted": 0
+        },
+        {
+          "generation": 2,
+          "offered": 6,
+          "independent_acc": 0.7277777777777777,
+          "greedy_acc": 0.7277777777777777,
+          "oracle_acc": 0.9666666666666667,
+          "independent_gap": -0.23888888888888893,
+          "greedy_gap": -0.23888888888888893,
+          "independent_store": [
+            "c_ref",
+            "c_code",
+            "p_phone_dash"
+          ],
+          "greedy_store": [
+            "c_ref",
+            "c_code",
+            "p_phone_dash"
+          ],
+          "oracle_store": [
+            "c_ref",
+            "c_code",
+            "c_phone",
+            "c_amount"
+          ],
+          "independent_wrong_admitted": 1,
+          "greedy_wrong_admitted": 1
+        },
+        {
+          "generation": 3,
+          "offered": 9,
+          "independent_acc": 0.7277777777777777,
+          "greedy_acc": 0.7388888888888889,
+          "oracle_acc": 0.975,
+          "independent_gap": -0.24722222222222223,
+          "greedy_gap": -0.23611111111111105,
+          "independent_store": [
+            "c_ref",
+            "c_code",
+            "p_phone_dash"
+          ],
+          "greedy_store": [
+            "c_ref",
+            "c_code",
+            "p_phone_dash",
+            "p_amt_round"
+          ],
+          "oracle_store": [
+            "c_ref",
+            "p_phone_dash",
+            "c_phone",
+            "c_amount",
+            "p_iban_dash",
+            "p_code_ad",
+            "c_iban",
+            "p_phone_area",
+            "p_ref_early"
+          ],
+          "independent_wrong_admitted": 1,
+          "greedy_wrong_admitted": 2
+        },
+        {
+          "generation": 4,
+          "offered": 12,
+          "independent_acc": 0.688888888888889,
+          "greedy_acc": 0.7388888888888889,
+          "oracle_acc": 0.975,
+          "independent_gap": -0.286111111111111,
+          "greedy_gap": -0.23611111111111105,
+          "independent_store": [
+            "c_ref",
+            "c_code",
+            "p_phone_dash",
+            "p_ref_early"
+          ],
+          "greedy_store": [
+            "c_ref",
+            "c_code",
+            "p_phone_dash",
+            "p_amt_round"
+          ],
+          "oracle_store": [
+            "c_ref",
+            "p_phone_dash",
+            "c_phone",
+            "c_amount",
+            "p_iban_dash",
+            "p_code_ad",
+            "c_iban",
+            "p_phone_area",
+            "p_ref_early"
+          ],
+          "independent_wrong_admitted": 2,
+          "greedy_wrong_admitted": 2
+        },
+        {
+          "generation": 5,
+          "offered": 15,
+          "independent_acc": 0.8972222222222221,
+          "greedy_acc": 0.8250000000000001,
+          "oracle_acc": 0.9777777777777779,
+          "independent_gap": -0.08055555555555571,
+          "greedy_gap": -0.1527777777777778,
+          "independent_store": [
+            "c_ref",
+            "c_code",
+            "p_phone_dash",
+            "p_ref_early",
+            "c_amount",
+            "p_code_ad",
+            "c_phone"
+          ],
+          "greedy_store": [
+            "c_ref",
+            "c_code",
+            "p_phone_dash",
+            "p_amt_round",
+            "c_amount",
+            "p_code_ad"
+          ],
+          "oracle_store": [
+            "c_ref",
+            "c_amount",
+            "p_code_ad",
+            "p_amt_comma",
+            "p_iban_dash",
+            "p_phone_area",
+            "c_phone"
+          ],
+          "independent_wrong_admitted": 3,
+          "greedy_wrong_admitted": 3
+        },
+        {
+          "generation": 6,
+          "offered": 18,
+          "independent_acc": 0.8972222222222221,
+          "greedy_acc": 0.8527777777777777,
+          "oracle_acc": 0.975,
+          "independent_gap": -0.07777777777777783,
+          "greedy_gap": -0.12222222222222223,
+          "independent_store": [
+            "c_ref",
+            "c_code",
+            "p_phone_dash",
+            "p_ref_early",
+            "c_amount",
+            "p_code_ad",
+            "c_phone"
+          ],
+          "greedy_store": [
+            "c_ref",
+            "c_code",
+            "p_phone_dash",
+            "p_amt_round",
+            "c_amount",
+            "p_code_ad",
+            "p_phone_area"
+          ],
+          "oracle_store": [
+            "c_ref",
+            "p_phone_dash",
+            "p_ref_early",
+            "c_amount",
+            "p_code_ad",
+            "c_phone",
+            "c_iban",
+            "p_iban_dash",
+            "p_phone_area"
+          ],
+          "independent_wrong_admitted": 3,
+          "greedy_wrong_admitted": 4
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "gen_batch": 3,
+    "generations": 6,
+    "pool": [
+      "c_iban",
+      "c_zip",
+      "c_phone",
+      "c_ref",
+      "c_amount",
+      "c_code",
+      "p_iban_lower",
+      "p_zip_pad",
+      "p_phone_dash",
+      "p_ref_lower",
+      "p_amt_comma",
+      "p_code_dash",
+      "p_amt_round",
+      "p_iban_dash",
+      "p_code_ad",
+      "p_zip_two",
+      "p_phone_area",
+      "p_ref_early"
+    ],
+    "model": "C:/Users/hackathon/Documents/GitHub/arc-agi-2/models/qwen2.5-coder-3b-instruct",
+    "tasks": 60,
+    "unique_stores": 1294,
+    "minutes": 279.7
+  }
+}
