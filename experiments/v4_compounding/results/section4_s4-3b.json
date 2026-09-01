@@ -102,23 +102,26 @@
     },
     "evaluations": 85
   },
+  "all_correct_reference": {
+    "store": [
+      "c_iban",
+      "c_zip",
+      "c_phone",
+      "c_ref",
+      "c_amount",
+      "c_code"
+    ],
+    "acc": 0.8972222222222223
+  },
   "oracle": {
     "store": [
-      "c_zip",
-      "c_code",
-      "p_zip_pad",
-      "p_ref_lower",
+      "c_ref",
+      "c_phone",
       "c_amount",
-      "p_code_ad",
-      "p_ref_early",
-      "p_phone_dash",
-      "p_iban_dash",
-      "p_phone_area",
-      "p_iban_lower",
-      "c_ref"
+      "c_code"
     ],
-    "acc": 0.9055555555555556,
-    "evaluations": 139
+    "acc": 0.9666666666666667,
+    "evaluations": 232
   },
   "_meta": {
     "candidates": [
@@ -152,7 +155,7 @@
     "tasks": 60,
     "pad_to": 26,
     "model": "C:/Users/hackathon/Documents/GitHub/arc-agi-2/models/qwen2.5-coder-3b-instruct",
-    "unique_stores_measured": 208,
-    "minutes": 50.0
+    "unique_stores_measured": 211,
+    "minutes": 0.8
   }
 }
