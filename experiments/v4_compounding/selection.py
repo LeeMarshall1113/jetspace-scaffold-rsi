@@ -185,24 +185,47 @@ def greedy(ev, rounds):
     return cur, calls
 
 
-def oracle(ev, samples, seed=0):
-    """Random subsets, then hill-climb from the best. The ceiling."""
+def oracle(ev, samples, seed=0, seeds=()):
+    """Best subset found by MULTI-START hill-climbing. The ceiling.
+
+    Single-start from the best random sample was not a ceiling at all: with 12 of 18
+    candidates harmful, random subsets are almost always poor, and single-element
+    flips from a poor start stall in a local optimum. The first run of this returned
+    0.906 against greedy's 0.967 -- an "oracle" losing to a procedure it is supposed
+    to bound, which is a bug rather than a finding.
+
+    Now it climbs from several starts: every caller-supplied seed (greedy's store,
+    the all-correct store), the empty store, and the best random sample. A ceiling
+    that a competing procedure beats means the search is wrong, not that the
+    procedure is superhuman.
+    """
     rng = random.Random(seed)
-    best, best_v, calls = [], ev([])["_total"], 1
+    calls = 0
+    starts = [list(s) for s in seeds] + [[]]
+
+    best_rand, best_rand_v = [], -1.0
     for _ in range(samples):
         k = rng.randint(1, len(CANDIDATES))
         s = rng.sample(CANDIDATES, k)
         v = ev(s)["_total"]; calls += 1
-        if v > best_v:
-            best, best_v = s, v
-    improved = True
-    while improved:
-        improved = False
-        for c in CANDIDATES:
-            cand = [x for x in best if x != c] if c in best else best + [c]
-            v = ev(cand)["_total"]; calls += 1
-            if v > best_v:
-                best, best_v, improved = cand, v, True
+        if v > best_rand_v:
+            best_rand, best_rand_v = s, v
+    starts.append(best_rand)
+
+    best, best_v = [], -1.0
+    for start in starts:
+        cur = list(start)
+        cur_v = ev(cur)["_total"]; calls += 1
+        improved = True
+        while improved:
+            improved = False
+            for c in CANDIDATES:
+                cand = [x for x in cur if x != c] if c in cur else cur + [c]
+                v = ev(cand)["_total"]; calls += 1
+                if v > cur_v + 1e-9:
+                    cur, cur_v, improved = cand, v, True
+        if cur_v > best_v:
+            best, best_v = cur, cur_v
     return best, best_v, calls
 
 
@@ -239,7 +262,15 @@ def main():
                      "evaluations": calls}
     print(f"[greedy] kept {len(g)} -> {acc['_total']:.3f} ({calls} evaluations)", flush=True)
 
-    o, ov, calls = oracle(ev, args.oracle_samples)
+    # Reference point the procedures never happen to evaluate: the ground-truth
+    # store of every correct entry and nothing else.
+    all_correct = [k for k, _ in S.CORRECT]
+    out["all_correct_reference"] = {"store": all_correct,
+                                    "acc": ev(all_correct)["_total"]}
+    print(f"[reference] all 6 correct -> {out['all_correct_reference']['acc']:.3f}",
+          flush=True)
+
+    o, ov, calls = oracle(ev, args.oracle_samples, seeds=(g, all_correct))
     out["oracle"] = {"store": o, "acc": ov, "evaluations": calls}
     print(f"[oracle] kept {len(o)} -> {ov:.3f} ({calls} evaluations)", flush=True)
 

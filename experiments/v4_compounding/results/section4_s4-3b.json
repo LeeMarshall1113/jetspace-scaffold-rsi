@@ -1,0 +1,158 @@
+{
+  "independent": {
+    "store": [
+      "c_phone",
+      "c_ref",
+      "c_amount",
+      "c_code",
+      "p_phone_dash",
+      "p_code_ad",
+      "p_ref_early"
+    ],
+    "acc": 0.8972222222222221,
+    "per_field": {
+      "iban": 1.0,
+      "zip": 1.0,
+      "phone": 0.7333333333333333,
+      "ref": 0.8333333333333334,
+      "amount": 0.9833333333333333,
+      "code": 0.8333333333333334,
+      "_total": 0.8972222222222221
+    },
+    "evaluations": 19,
+    "deltas": {
+      "c_iban": 0.0,
+      "c_zip": 0.0,
+      "c_phone": 0.7833333333333333,
+      "c_ref": 0.8833333333333333,
+      "c_amount": 0.9666666666666667,
+      "c_code": 0.03333333333333333,
+      "p_iban_lower": -0.55,
+      "p_zip_pad": -1.0,
+      "p_phone_dash": 0.35,
+      "p_ref_lower": 0.0,
+      "p_amt_comma": 0.0,
+      "p_code_dash": 0.0,
+      "p_amt_round": 0.0,
+      "p_iban_dash": -0.21666666666666667,
+      "p_code_ad": 0.8,
+      "p_zip_two": -1.0,
+      "p_phone_area": 0.0,
+      "p_ref_early": 0.03333333333333333
+    }
+  },
+  "global": {
+    "store": [
+      "c_phone",
+      "c_ref",
+      "c_amount",
+      "c_code",
+      "p_phone_dash",
+      "p_code_ad",
+      "p_ref_early"
+    ],
+    "acc": 0.8972222222222221,
+    "per_field": {
+      "iban": 1.0,
+      "zip": 1.0,
+      "phone": 0.7333333333333333,
+      "ref": 0.8333333333333334,
+      "amount": 0.9833333333333333,
+      "code": 0.8333333333333334,
+      "_total": 0.8972222222222221
+    },
+    "evaluations": 19,
+    "deltas": {
+      "c_iban": 0.0,
+      "c_zip": 0.0,
+      "c_phone": 0.13055555555555554,
+      "c_ref": 0.23055555555555557,
+      "c_amount": 0.16111111111111115,
+      "c_code": 0.008333333333333304,
+      "p_iban_lower": -0.09166666666666665,
+      "p_zip_pad": -0.16666666666666666,
+      "p_phone_dash": 0.05833333333333335,
+      "p_ref_lower": 0.0,
+      "p_amt_comma": 0.0,
+      "p_code_dash": -0.175,
+      "p_amt_round": 0.0,
+      "p_iban_dash": -0.04999999999999999,
+      "p_code_ad": 0.1333333333333333,
+      "p_zip_two": -0.3,
+      "p_phone_area": 0.0,
+      "p_ref_early": 0.005555555555555536
+    }
+  },
+  "greedy": {
+    "store": [
+      "c_ref",
+      "c_phone",
+      "c_amount",
+      "c_code"
+    ],
+    "acc": 0.9666666666666667,
+    "per_field": {
+      "iban": 1.0,
+      "zip": 1.0,
+      "phone": 0.8333333333333334,
+      "ref": 1.0,
+      "amount": 1.0,
+      "code": 0.9666666666666667,
+      "_total": 0.9666666666666667
+    },
+    "evaluations": 85
+  },
+  "oracle": {
+    "store": [
+      "c_zip",
+      "c_code",
+      "p_zip_pad",
+      "p_ref_lower",
+      "c_amount",
+      "p_code_ad",
+      "p_ref_early",
+      "p_phone_dash",
+      "p_iban_dash",
+      "p_phone_area",
+      "p_iban_lower",
+      "c_ref"
+    ],
+    "acc": 0.9055555555555556,
+    "evaluations": 139
+  },
+  "_meta": {
+    "candidates": [
+      "c_iban",
+      "c_zip",
+      "c_phone",
+      "c_ref",
+      "c_amount",
+      "c_code",
+      "p_iban_lower",
+      "p_zip_pad",
+      "p_phone_dash",
+      "p_ref_lower",
+      "p_amt_comma",
+      "p_code_dash",
+      "p_amt_round",
+      "p_iban_dash",
+      "p_code_ad",
+      "p_zip_two",
+      "p_phone_area",
+      "p_ref_early"
+    ],
+    "background": [
+      "d00",
+      "d01",
+      "d02",
+      "d03",
+      "d04",
+      "d05"
+    ],
+    "tasks": 60,
+    "pad_to": 26,
+    "model": "C:/Users/hackathon/Documents/GitHub/arc-agi-2/models/qwen2.5-coder-3b-instruct",
+    "unique_stores_measured": 208,
+    "minutes": 50.0
+  }
+}
