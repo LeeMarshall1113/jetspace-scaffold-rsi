@@ -210,7 +210,8 @@ def oracle(ev, samples, seed=0, seeds=()):
         v = ev(s)["_total"]; calls += 1
         if v > best_rand_v:
             best_rand, best_rand_v = s, v
-    starts.append(best_rand)
+    if samples:
+        starts.append(best_rand)
 
     best, best_v = [], -1.0
     for start in starts:
