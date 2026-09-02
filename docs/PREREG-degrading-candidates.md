@@ -107,6 +107,21 @@ Fixed now, because two prior results in this project looked publishable and were
 The analysis script is committed alongside this document, before the run, and its
 output is what gets reported.
 
+## Declared reduction (2026-09-02, before any data)
+
+Cost was re-estimated against the built implementation at roughly 7,400 evaluations
+(~27 GPU-hours), against the 9–14h estimated when this was written. The oracle
+hill-climb over a growing offered set dominates, and the existing 1,894-store cache
+does not transfer because the extended pool uses new entry ids.
+
+Per the rule fixed below, the reduction is to **orderings, not generations**:
+**5 seeds per arm becomes 3.** Generations stay at 10, candidates per generation stay
+at 3, the degradation function is unchanged, and the decision rule is unchanged.
+
+This weakens the secondary order-spread measurement, which §6 showed is large for
+greedy. Any claim about order-stability from this run is correspondingly weaker and
+will be labelled so.
+
 ## Compute
 
 10 generations x 3 candidates x 5 orderings x 2 new arms, sharing the existing
